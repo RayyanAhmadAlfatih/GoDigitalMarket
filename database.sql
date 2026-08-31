@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS articles (
     image_title VARCHAR(180) NULL,
     author VARCHAR(120) NOT NULL DEFAULT 'Admin',
     published_at DATETIME NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'published',
     reading_time VARCHAR(30) NULL,
     featured TINYINT(1) NOT NULL DEFAULT 0,
     keywords TEXT NULL,
@@ -55,6 +56,8 @@ ALTER TABLE articles ADD COLUMN IF NOT EXISTS whatsapp_label VARCHAR(80) NULL AF
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS whatsapp_phone VARCHAR(30) NULL AFTER whatsapp_label;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS whatsapp_text VARCHAR(255) NULL AFTER whatsapp_phone;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS source VARCHAR(40) NOT NULL DEFAULT 'admin' AFTER updated_at;
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'published' AFTER published_at;
+CREATE INDEX IF NOT EXISTS idx_articles_status ON articles (status);
 
 -- V12 dynamic marketplace products table
 CREATE TABLE IF NOT EXISTS products (
