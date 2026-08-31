@@ -26,11 +26,26 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     if (!verify_csrf()) {
         $error = 'Sesi keamanan tidak valid. Refresh halaman lalu coba lagi.';
     } else {
-        $login = trim((string)($_POST['login'] ?? ''));
-        $password = (string)($_POST['password'] ?? '');
-        $result = function_exists('admin_auth_attempt_login')
-            ? admin_auth_attempt_login($login, $password)
-            : ['ok' => hash_equals((string)($_ENV['ADMIN_PASSWORD'] ?? ''), $password), 'user' => ['role' => 'owner']];
+        $loginScope = 'admin-login';
+
+        if (
+            function_exists('public_endpoint_is_rate_limited')
+            && public_endpoint_is_rate_limited($loginScope, 20, 900, 0)
+        ) {
+            http_response_code(429);
+            $error = 'Terlalu banyak percobaan login. Coba lagi beberapa saat.';
+            $result = ['ok' => false, 'message' => $error];
+        } else {
+            if (function_exists('public_endpoint_touch_rate_limit')) {
+                public_endpoint_touch_rate_limit($loginScope, 900);
+            }
+
+            $login = trim((string)($_POST['login'] ?? ''));
+            $password = (string)($_POST['password'] ?? '');
+            $result = function_exists('admin_auth_attempt_login')
+                ? admin_auth_attempt_login($login, $password)
+                : ['ok' => hash_equals((string)($_ENV['ADMIN_PASSWORD'] ?? ''), $password), 'user' => ['role' => 'owner']];
+        }
 
         if (!empty($result['ok'])) {
             $user = is_array($result['user'] ?? null) ? $result['user'] : [];
