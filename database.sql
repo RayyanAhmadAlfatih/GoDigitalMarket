@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS articles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     source VARCHAR(40) NOT NULL DEFAULT 'admin',
     INDEX idx_published_at (published_at),
+    INDEX idx_status (status),
     INDEX idx_category (category),
     INDEX idx_featured (featured),
     INDEX idx_slug (slug)
@@ -57,7 +58,6 @@ ALTER TABLE articles ADD COLUMN IF NOT EXISTS whatsapp_phone VARCHAR(30) NULL AF
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS whatsapp_text VARCHAR(255) NULL AFTER whatsapp_phone;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS source VARCHAR(40) NOT NULL DEFAULT 'admin' AFTER updated_at;
 ALTER TABLE articles ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'published' AFTER published_at;
-CREATE INDEX IF NOT EXISTS idx_articles_status ON articles (status);
 
 -- V12 dynamic marketplace products table
 CREATE TABLE IF NOT EXISTS products (
