@@ -1,0 +1,63 @@
+name: Audit PHP 8.3
+
+on:
+  push:
+    branches:
+      - audit-php83-20260831
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, curl, fileinfo, openssl, pdo_mysql, gd
+          coverage: none
+
+      - name: PHP version
+        run: php -v
+
+      - name: Lint all PHP files
+        shell: bash
+        run: |
+          set -o pipefail
+          find . -type f -name '*.php' -not -path './.git/*' -print0 |
+          while IFS= read -r -d '' f; do
+            php -l "$f" || exit 1
+          done
+
+      - name: Static dangerous-function scan
+        shell: bash
+        run: |
+          grep -RInE --include='*.php' --exclude-dir=.git --exclude-dir=vendor --exclude-dir=node_modules '\b(eval|shell_exec|exec|system|passthru|proc_open|popen)\s*\(' . || true
+
+      - name: Production config sanity
+        shell: bash
+        run: |
+          test -f .env.example
+          grep -nE 'APP_ENV|APP_DEBUG|APP_URL|INSTALLER_ENABLED|APP_KEY' .env.example || true
+
+      - name: Boot smoke test with PHP built-in server
+        shell: bash
+        run: |
+          cp .env.example .env
+          sed -i 's#^APP_URL=.*#APP_URL=http://127.0.0.1:8080#' .env || true
+          php -S 127.0.0.1:8080 index.php > /tmp/gdm-server.log 2>&1 &
+          PID=$!
+          sleep 3
+          for path in / /katalog /layanan /artikel /admin/login; do
+            code=$(curl -sS -o /tmp/body -w '%{http_code}' "http://127.0.0.1:8080$path" || true)
+            echo "$path => $code"
+            if [ "$code" -ge 500 ] || [ "$code" = "000" ]; then
+              cat /tmp/gdm-server.log
+              kill $PID || true
+              exit 1
+            fi
+          done
+          kill $PID || true
+          cat /tmp/gdm-server.log
