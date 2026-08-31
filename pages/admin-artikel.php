@@ -35,7 +35,7 @@ function admin_article_clean_content(string $content): string
     $content = strip_tags($content, '<p><br><h1><h2><h3><h4><h5><h6><strong><b><em><i><u><s><del><strike><mark><sub><sup><ul><ol><li><a><blockquote><hr><img><figure><figcaption><table><thead><tbody><tfoot><tr><th><td><span><div><pre><code>');
     $content = preg_replace('#href\s*=\s*(["\'])\s*javascript:[^"\']*\1#i', 'href="#"', (string)$content);
     $content = preg_replace('#src\s*=\s*(["\'])\s*javascript:[^"\']*\1#i', 'src=""', (string)$content);
-    $content = preg_replace('#<(a|img)([^>]*)>#i', function ($m) {
+    $content = preg_replace_callback('#<(a|img)([^>]*)>#i', function ($m) {
         $tag = strtolower($m[1]);
         $attrs = $m[2];
         $allowed = $tag === 'a' ? ['href','title','target','rel'] : ['src','alt','title','loading','width','height'];
@@ -138,6 +138,9 @@ function admin_article_payload(): array
         'whatsapp_phone' => preg_replace('/\D+/', '', (string)($_POST['whatsapp_phone'] ?? '')),
         'whatsapp_text' => trim((string)($_POST['whatsapp_text'] ?? '')),
         'source' => trim((string)($_POST['source'] ?? 'admin')) ?: 'admin',
+        'status' => in_array((string)($_POST['status'] ?? 'published'), ['draft', 'published'], true)
+            ? (string)($_POST['status'] ?? 'published')
+            : 'published',
     ];
 }
 
@@ -857,7 +860,11 @@ require_once ROOT_PATH . '/components/layout/header.php';
                                         <input type="checkbox" name="featured" value="1" <?= !empty($article['featured']) ? 'checked' : ''; ?>>
                                         <span>Jadikan artikel unggulan</span>
                                     </label>
-                                    <button type="submit" class="admin-btn admin-btn--primary admin-btn--full">Simpan Artikel</button>
+                                    <div class="admin-publish-actions">
+                                        <button type="submit" name="status" value="draft" class="admin-btn admin-btn--soft admin-btn--full">Simpan Draft</button>
+                                        <button type="submit" name="status" value="published" class="admin-btn admin-btn--primary admin-btn--full"><?= (($article['status'] ?? 'published') === 'draft') ? 'Publikasikan' : 'Simpan & Publikasikan'; ?></button>
+                                    </div>
+                                    <small>Draft tersimpan di dashboard tetapi tidak tampil di frontend sampai dipublikasikan.</small>
                                     <a class="admin-btn admin-btn--soft admin-btn--full" href="<?= url('admin/artikel'); ?>">Batal</a>
                                 </div>
                             </aside>
@@ -901,7 +908,7 @@ require_once ROOT_PATH . '/components/layout/header.php';
                             <article class="admin-article-row">
                                 <div class="admin-article-row__main">
                                     <span class="admin-category"><?= esc((string)$article['category']); ?></span>
-                                    <h3><?= esc((string)$article['title']); ?> <span class="admin-source-badge"><?= esc(article_source_label($article)); ?></span></h3>
+                                    <h3><?= esc((string)$article['title']); ?> <span class="admin-source-badge"><?= esc(article_source_label($article)); ?></span> <span class="admin-status-pill admin-status-pill--<?= (($article['status'] ?? 'published') === 'draft') ? 'warning' : 'ok'; ?>"><?= (($article['status'] ?? 'published') === 'draft') ? 'Draft' : 'Published'; ?></span></h3>
                                     <p><?= esc((string)$article['excerpt']); ?></p>
                                     <div class="admin-meta">
                                         <span><?= esc((string)$article['published_at']); ?></span>
