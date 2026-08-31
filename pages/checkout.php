@@ -25,7 +25,9 @@ $productUrl = $product ? product_url((string)($product['slug'] ?? '')) : url('ka
 $productImage = $product ? (string)($product['image'] ?? asset('images/placeholder-product.svg')) : asset('images/placeholder-product.svg');
 $productPrice = $product ? (int)($product['price'] ?? 0) : 0;
 $source = order_clean((string)($_GET['source'] ?? 'checkout-page'), 80);
-$checkoutSettings = function_exists('checkout_settings') ? checkout_settings() : [];
+$checkoutSettings = function_exists('checkout_settings_for_product')
+    ? checkout_settings_for_product($product)
+    : (function_exists('checkout_settings') ? checkout_settings() : []);
 $checkoutHeadline = (string)($checkoutSettings['headline'] ?? 'Lengkapi Data Pemesanan');
 $checkoutIntro = (string)($checkoutSettings['intro'] ?? 'Isi data awal agar admin bisa membantu cek stok, jadwal, lokasi, invoice, dan langkah berikutnya.');
 $checkoutSummaryNote = (string)($checkoutSettings['summary_note'] ?? 'Pembayaran belum otomatis di tahap ini.');
