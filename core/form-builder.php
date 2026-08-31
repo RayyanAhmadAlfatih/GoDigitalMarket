@@ -1153,6 +1153,110 @@ if (!function_exists('custom_form_dispatch_integrations')) {
     }
 }
 
+if (!function_exists('custom_form_bridge_to_inquiry')) {
+    function custom_form_bridge_to_inquiry(array $form, array $entry): ?bool
+    {
+        if (
+            !function_exists('inquiry_enabled')
+            || !inquiry_enabled()
+            || !function_exists('inquiry_normalize_payload')
+            || !function_exists('inquiry_store')
+        ) {
+            return null;
+        }
+
+        $values = is_array($entry['values'] ?? null) ? (array)$entry['values'] : [];
+        $name = custom_form_first_value($values, ['nama', 'name', 'nama_lengkap', 'full_name', 'customer_name']);
+        $phone = custom_form_first_value($values, ['whatsapp', 'wa', 'phone', 'telepon', 'no_hp', 'nomor_whatsapp', 'nomor_hp']);
+        $email = custom_form_first_value($values, ['email', 'alamat_email']);
+        $need = custom_form_first_value($values, ['kebutuhan', 'need', 'service', 'layanan', 'produk', 'product', 'subject']);
+        $location = custom_form_first_value($values, ['lokasi', 'location', 'kota', 'city', 'alamat', 'address', 'domisili']);
+        $message = custom_form_first_value($values, ['pesan', 'message', 'catatan', 'notes', 'note', 'catatan_order', 'keterangan']);
+
+        $labels = [];
+        foreach ((array)($form['fields'] ?? []) as $field) {
+            if (!is_array($field)) {
+                continue;
+            }
+            $key = custom_form_field_key((string)($field['key'] ?? ''), '');
+            if ($key === '') {
+                continue;
+            }
+            $labels[$key] = custom_form_clean_text($field['label'] ?? ucwords(str_replace('_', ' ', $key)), 90);
+        }
+
+        $customValues = [];
+        $customLabels = [];
+        $contactKeys = [
+            'nama', 'name', 'nama_lengkap', 'full_name', 'customer_name',
+            'whatsapp', 'wa', 'phone', 'telepon', 'no_hp', 'nomor_whatsapp', 'nomor_hp',
+            'email', 'alamat_email',
+        ];
+
+        foreach ($values as $rawKey => $value) {
+            $key = custom_form_field_key((string)$rawKey, '');
+            if ($key === '' || in_array($key, $contactKeys, true)) {
+                continue;
+            }
+            $customValues[$key] = $value;
+            $customLabels[$key] = $labels[$key] ?? ucwords(str_replace(['_', '-'], ' ', $key));
+        }
+
+        $formTitle = custom_form_clean_text($entry['form_title'] ?? $form['title'] ?? 'Form Custom', 120);
+        $formSlug = custom_form_slug((string)($entry['form_slug'] ?? $form['slug'] ?? ''), '');
+        $sourceType = custom_form_clean_text($entry['source_type'] ?? 'standalone_form', 80);
+        $sourceLabel = custom_form_clean_text($entry['source_label'] ?? '', 120);
+        $sourceUrl = custom_form_clean_text($entry['source_url'] ?? '', 360);
+        $submissionId = custom_form_clean_text($entry['id'] ?? '', 80);
+
+        $payload = [
+            'name' => $name !== '' ? $name : 'Customer',
+            'phone' => $phone,
+            'email' => $email,
+            'consent_contact' => !empty($entry['consent']) ? '1' : '',
+            'need' => $need !== '' ? $need : $formTitle,
+            'location' => $location,
+            'message' => $message,
+            'custom_fields' => $customValues,
+            'custom_labels' => $customLabels,
+            'source' => $sourceType === 'landing_page' ? 'custom-form-landing-page' : 'custom-form',
+            'category' => custom_form_clean_text($entry['form_type'] ?? $form['type'] ?? 'custom', 80),
+            'intent' => 'custom-form-submit',
+            'label' => $sourceLabel !== '' ? $sourceLabel : $formTitle,
+            'lp_form_name' => $formTitle,
+            'item_title' => $formTitle,
+            'item_url' => $sourceUrl,
+            'landing_page_slug' => custom_form_clean_text($entry['source_landing_page_slug'] ?? '', 120),
+            'landing_page_id' => custom_form_clean_text($entry['source_landing_page_id'] ?? '', 80),
+            'page_path' => $sourceUrl,
+            'lead_tags' => array_values(array_filter([
+                'custom-form',
+                $formSlug !== '' ? 'form-' . $formSlug : '',
+                $sourceType === 'landing_page' ? 'landing-page' : 'standalone-form',
+            ])),
+        ];
+
+        $inquiry = inquiry_normalize_payload($payload);
+        if ($submissionId !== '') {
+            $safeRef = preg_replace('/[^a-zA-Z0-9_-]+/', '-', $submissionId) ?: '';
+            $safeRef = trim($safeRef, '-_');
+            if ($safeRef !== '') {
+                $inquiry['id'] = 'inq_' . substr($safeRef, 0, 72);
+            }
+            $inquiry['source_submission_id'] = $submissionId;
+        }
+        $inquiry['source_form_id'] = custom_form_clean_text($entry['form_id'] ?? $form['id'] ?? '', 80);
+        $inquiry['source_form_slug'] = $formSlug;
+
+        $createdAt = (string)($entry['created_at'] ?? '');
+        if ($createdAt !== '' && strtotime($createdAt) !== false) {
+            $inquiry['time'] = $createdAt;
+        }
+
+        return inquiry_store($inquiry, true);
+    }
+}
+
 if (!function_exists('custom_form_submit')) {
     function custom_form_submit(array $post): array
     {
@@ -1296,8 +1400,13 @@ if (!function_exists('custom_form_submit')) {
 
         custom_form_touch_rate_limit();
 
+        $inquiryBridge = custom_form_bridge_to_inquiry($form, $entry);
+
         if (function_exists('activity_log_record')) {
-            activity_log_record('create', 'custom_form_submission', (string)$entry['id'], 'Form custom masuk.', ['form' => $entry['form_title']]);
+            activity_log_record('create', 'custom_form_submission', (string)$entry['id'], 'Form custom masuk.', [
+                'form' => $entry['form_title'],
+                'inquiry_bridge' => $inquiryBridge === true ? 'stored' : ($inquiryBridge === false ? 'failed' : 'skipped'),
+            ]);
         }
 
         custom_form_dispatch_integrations($form, $entry);
@@ -1593,6 +1702,14 @@ if (!function_exists('custom_form_render')) {
         $description = (string)($options['description'] ?? $form['description']);
         $showHeader = (bool)($options['show_header'] ?? true);
         $cardClass = custom_form_clean_text($options['class'] ?? '', 80);
+        $submittedForm = custom_form_slug(is_string($_GET['submitted_form'] ?? null) ? (string)$_GET['submitted_form'] : '', '');
+        $feedbackSuccess = '';
+        $feedbackError = '';
+
+        if ($submittedForm !== '' && hash_equals((string)$form['slug'], $submittedForm)) {
+            $feedbackSuccess = custom_form_clean_text(is_string($_GET['success'] ?? null) ? (string)$_GET['success'] : '', 500);
+            $feedbackError = custom_form_clean_text(is_string($_GET['error'] ?? null) ? (string)$_GET['error'] : '', 500);
+        }
 
         echo '<section class="custom-form-card ' . esc($cardClass) . '" id="form-' . esc((string)$form['slug']) . '">';
         if ($showHeader) {
@@ -1601,6 +1718,13 @@ if (!function_exists('custom_form_render')) {
                 echo '<p>' . esc($description) . '</p>';
             }
             echo '</div>';
+        }
+
+        if ($feedbackSuccess !== '') {
+            echo '<div class="form-message form-message--success" role="status" aria-live="polite">' . esc($feedbackSuccess) . '</div>';
+        }
+        if ($feedbackError !== '') {
+            echo '<div class="form-message form-message--error" role="alert">' . esc($feedbackError) . '</div>';
         }
 
         echo '<form class="custom-form" method="post" action="' . esc(url('form-submit')) . '" enctype="multipart/form-data" data-custom-form="1">';
