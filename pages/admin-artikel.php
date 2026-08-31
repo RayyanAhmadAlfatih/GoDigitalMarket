@@ -711,7 +711,10 @@ require_once ROOT_PATH . '/components/layout/header.php';
                                 <h2><?= $editingArticle ? 'Edit Artikel SEO' : 'Artikel Baru SEO'; ?></h2>
                                 <p>Isi konten, meta SEO, gambar, dan schema untuk memperkuat indexability halaman artikel.</p>
                             </div>
-                            <button type="submit" class="admin-btn admin-btn--primary">Simpan Artikel</button>
+                            <div class="admin-publish-actions admin-publish-actions--header">
+                                <button type="submit" name="status" value="draft" class="admin-btn admin-btn--soft">Simpan Draft</button>
+                                <button type="submit" name="status" value="published" class="admin-btn admin-btn--primary"><?= (($article['status'] ?? 'published') === 'draft') ? 'Publikasikan' : 'Simpan & Publikasikan'; ?></button>
+                            </div>
                         </div>
                         <?php if (!empty($article['_seo_draft_id'])): ?>
                             <div class="admin-alert admin-alert--info">Draft ini dibuat dari SEO Draft Publisher. Review isi, data bisnis, gambar, internal link, dan CTA sebelum disimpan sebagai artikel.</div>
