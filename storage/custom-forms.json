@@ -1,0 +1,197 @@
+[
+    {
+        "id": "form_konsultasi_umkm",
+        "title": "Form Konsultasi",
+        "slug": "konsultasi",
+        "type": "consultation",
+        "status": "active",
+        "description": "Form singkat untuk calon customer yang ingin bertanya atau konsultasi sebelum membeli.",
+        "submit_label": "Kirim Konsultasi",
+        "success_message": "Terima kasih, data Anda sudah masuk. Admin akan menghubungi Anda.",
+        "redirect_url": "",
+        "consent_text": "Saya bersedia dihubungi admin terkait kebutuhan ini.",
+        "button_mode": "submit",
+        "integrations": {
+            "send_to_marketing": true,
+            "mailketing_list_id": "",
+            "webhook_url": "",
+            "webhook_enabled": false,
+            "whatsapp_admin_enabled": true,
+            "whatsapp_customer_enabled": true,
+            "admin_whatsapp": "",
+            "whatsapp_admin_template": "",
+            "whatsapp_customer_template": "",
+            "email_admin_enabled": true,
+            "email_customer_enabled": true,
+            "admin_email": "",
+            "email_admin_subject": "",
+            "email_customer_subject": "",
+            "email_admin_template": "",
+            "email_customer_template": ""
+        },
+        "fields": [
+            {
+                "key": "nama",
+                "label": "Nama",
+                "type": "text",
+                "required": true,
+                "placeholder": "Nama Anda",
+                "help": "",
+                "options": []
+            },
+            {
+                "key": "whatsapp",
+                "label": "WhatsApp",
+                "type": "phone",
+                "required": true,
+                "placeholder": "08xxxxxxxxxx",
+                "help": "",
+                "options": []
+            },
+            {
+                "key": "pesan",
+                "label": "Pesan",
+                "type": "textarea",
+                "required": false,
+                "placeholder": "Tulis kebutuhan Anda...",
+                "help": "",
+                "options": []
+            }
+        ],
+        "created_at": "2026-05-28T14:58:16+07:00",
+        "updated_at": "2026-05-28T15:25:00+07:00"
+    },
+    {
+        "id": "form_lead_magnet_umkm",
+        "title": "Form Lead Magnet",
+        "slug": "lead-magnet",
+        "type": "lead_magnet",
+        "status": "draft",
+        "description": "Form untuk mengumpulkan data calon customer sebelum memberikan materi gratis atau bonus digital.",
+        "submit_label": "Dapatkan Materi",
+        "success_message": "Terima kasih, data Anda sudah masuk. Admin akan mengirim akses materi sesuai pengaturan.",
+        "redirect_url": "",
+        "consent_text": "Saya bersedia dihubungi admin untuk informasi lanjutan.",
+        "button_mode": "submit",
+        "integrations": {
+            "send_to_marketing": true,
+            "mailketing_list_id": "",
+            "webhook_url": "",
+            "webhook_enabled": false,
+            "whatsapp_admin_enabled": true,
+            "whatsapp_customer_enabled": true,
+            "admin_whatsapp": "",
+            "whatsapp_admin_template": "",
+            "whatsapp_customer_template": "",
+            "email_admin_enabled": true,
+            "email_customer_enabled": true,
+            "admin_email": "",
+            "email_admin_subject": "",
+            "email_customer_subject": "",
+            "email_admin_template": "",
+            "email_customer_template": ""
+        },
+        "fields": [
+            {
+                "key": "nama",
+                "label": "Nama",
+                "type": "text",
+                "required": true,
+                "placeholder": "Nama Anda",
+                "help": "",
+                "options": []
+            },
+            {
+                "key": "email",
+                "label": "Email",
+                "type": "email",
+                "required": true,
+                "placeholder": "nama@email.com",
+                "help": "Link materi bisa dikirim ke email ini.",
+                "options": []
+            },
+            {
+                "key": "whatsapp",
+                "label": "WhatsApp",
+                "type": "phone",
+                "required": false,
+                "placeholder": "08xxxxxxxxxx",
+                "help": "",
+                "options": []
+            }
+        ],
+        "created_at": "2026-05-28T14:58:16+07:00",
+        "updated_at": "2026-05-28T15:25:00+07:00"
+    },
+    {
+        "id": "form_checkout_ringan_umkm",
+        "title": "Form Checkout Sederhana",
+        "slug": "checkout-sederhana",
+        "type": "checkout",
+        "status": "draft",
+        "description": "Form awal untuk order manual, booking, atau checkout ringan sebelum sistem checkout penuh aktif.",
+        "submit_label": "Kirim Data Order",
+        "success_message": "Terima kasih, data order Anda sudah masuk. Admin akan mengecek dan menghubungi Anda.",
+        "redirect_url": "",
+        "consent_text": "Saya setuju admin menghubungi saya untuk konfirmasi order.",
+        "button_mode": "submit",
+        "integrations": {
+            "send_to_marketing": true,
+            "mailketing_list_id": "",
+            "webhook_url": "",
+            "webhook_enabled": false,
+            "whatsapp_admin_enabled": true,
+            "whatsapp_customer_enabled": true,
+            "admin_whatsapp": "",
+            "whatsapp_admin_template": "",
+            "whatsapp_customer_template": "",
+            "email_admin_enabled": true,
+            "email_customer_enabled": true,
+            "admin_email": "",
+            "email_admin_subject": "",
+            "email_customer_subject": "",
+            "email_admin_template": "",
+            "email_customer_template": ""
+        },
+        "fields": [
+            {
+                "key": "nama",
+                "label": "Nama Penerima",
+                "type": "text",
+                "required": true,
+                "placeholder": "Nama lengkap",
+                "help": "",
+                "options": []
+            },
+            {
+                "key": "whatsapp",
+                "label": "WhatsApp",
+                "type": "phone",
+                "required": true,
+                "placeholder": "08xxxxxxxxxx",
+                "help": "",
+                "options": []
+            },
+            {
+                "key": "alamat",
+                "label": "Alamat",
+                "type": "textarea",
+                "required": true,
+                "placeholder": "Alamat lengkap pengiriman/layanan",
+                "help": "",
+                "options": []
+            },
+            {
+                "key": "catatan",
+                "label": "Catatan Order",
+                "type": "textarea",
+                "required": false,
+                "placeholder": "Warna, ukuran, jadwal, atau catatan lain",
+                "help": "",
+                "options": []
+            }
+        ],
+        "created_at": "2026-05-28T14:58:16+07:00",
+        "updated_at": "2026-05-28T15:25:00+07:00"
+    }
+]

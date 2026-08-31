@@ -1,0 +1,83 @@
+RewriteEngine On
+
+#
+# FORCE HTTPS ON PRODUCTION
+#
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+#
+# REMOVE TRAILING SLASH
+#
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [R=301,L]
+
+#
+# FRONT CONTROLLER
+#
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]
+
+#
+# SECURITY
+#
+Options -Indexes
+
+#
+# BLOCK SENSITIVE FILES
+#
+<FilesMatch "(^\.|\.(env|ini|log|sql|sh|bak|old|dist|example|md|csv|jsonl)$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+#
+# SECURITY HEADERS
+#
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Permitted-Cross-Domain-Policies "none"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+</IfModule>
+
+#
+# CACHE STATIC ASSETS
+#
+<IfModule mod_expires.c>
+
+    ExpiresActive On
+
+    ExpiresByType text/css "access plus 30 days"
+    ExpiresByType application/javascript "access plus 30 days"
+    ExpiresByType application/json "access plus 7 days"
+    ExpiresByType application/xml "access plus 1 day"
+
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+
+</IfModule>
+
+#
+# GZIP
+#
+<IfModule mod_deflate.c>
+
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+
+</IfModule>

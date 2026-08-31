@@ -1,0 +1,28 @@
+# Local environment / secrets
+.env
+*.bak
+*.old
+
+# Runtime logs and generated analytics events
+logs/*.log
+logs/*.jsonl
+storage/admin-activity.log
+storage/server-conversion-*.jsonl
+storage/payment-gateway-*.jsonl
+storage/shipping-api-debug.log
+
+# Uploaded customer files / generated user uploads
+assets/uploads/*
+!assets/uploads/.htaccess
+!assets/uploads/.gitkeep
+storage/form-files/*
+!storage/form-files/.htaccess
+!storage/form-files/.gitkeep
+storage/payment-proofs/*
+!storage/payment-proofs/.htaccess
+!storage/payment-proofs/.gitkeep
+
+# Local cache
+cache/*
+!cache/.htaccess
+!cache/.gitkeep

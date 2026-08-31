@@ -1,0 +1,104 @@
+{
+    "source": "template",
+    "landing_page_slug": "",
+    "mode": "catalog",
+    "hero": {
+        "eyebrow": "Website siap jualan untuk UMKM",
+        "title": "Bangun Website Produk, Jasa, dan Landing Page dalam Satu Template",
+        "description": "Gunakan template ini untuk company profile, katalog produk, sales page, form lead, checkout manual, dan konsultasi WhatsApp. Semua konten bisa disesuaikan dengan brand bisnis Anda.",
+        "primary_label": "Lihat Katalog",
+        "primary_url": "/katalog",
+        "secondary_label": "Konsultasi",
+        "secondary_url": "/kontak"
+    },
+    "sections": {
+        "hero": true,
+        "trustbar": true,
+        "profile_intro": true,
+        "featured_catalog": true,
+        "services_highlight": false,
+        "business_fit": true,
+        "latest_articles": true,
+        "trust_conversion": true,
+        "custom_sections": true,
+        "lead_form": true,
+        "portfolio_highlight": false
+    },
+    "section_order": [
+        "hero",
+        "trustbar",
+        "profile_intro",
+        "featured_catalog",
+        "business_fit",
+        "latest_articles",
+        "custom_sections",
+        "trust_conversion",
+        "lead_form",
+        "services_highlight",
+        "portfolio_highlight"
+    ],
+    "trust_items": [
+        {
+            "title": "Multi",
+            "text": "Cocok untuk produk, jasa, digital, dan booking"
+        },
+        {
+            "title": "SEO",
+            "text": "Meta, schema, sitemap, artikel, dan clean slug"
+        },
+        {
+            "title": "WA",
+            "text": "CTA WhatsApp dan form inquiry siap pakai"
+        },
+        {
+            "title": "Checkout",
+            "text": "Order manual dan instruksi pembayaran"
+        }
+    ],
+    "profile_intro": {
+        "eyebrow": "Beranda fleksibel",
+        "title": "Pilih Gaya Beranda Sesuai Cara Bisnis Anda Berjualan",
+        "description": "Beranda bisa diarahkan menjadi company profile, katalog, sales page, lead form, atau halaman brand sederhana."
+    },
+    "featured_catalog": {
+        "eyebrow": "Katalog pilihan",
+        "title": "Contoh Katalog Produk & Layanan",
+        "description": "Katalog contoh ini bisa diganti admin dengan produk, jasa, harga, gambar, kategori, deskripsi, dan tombol CTA sesuai bisnis masing-masing.",
+        "button_label": "Buka Semua Katalog",
+        "button_url": "/katalog",
+        "limit": 6
+    },
+    "business_fit": {
+        "eyebrow": "Cocok untuk banyak bisnis",
+        "title": "Fleksibel untuk Banyak Jenis Bisnis",
+        "description": "Template ini disiapkan agar bisa dipakai UMKM yang menjual barang, jasa, layanan, paket, menu kuliner, produk digital, booking, sampai company profile."
+    },
+    "services_highlight": {
+        "eyebrow": "Layanan pilihan",
+        "title": "Layanan yang Bisa Disesuaikan dengan Kebutuhan Anda",
+        "description": "Tampilkan jasa, konsultasi, booking, paket layanan, atau penawaran custom yang paling penting untuk calon pelanggan.",
+        "button_label": "Lihat Semua Layanan",
+        "button_url": "/layanan",
+        "limit": 3
+    },
+    "latest_articles": {
+        "eyebrow": "Artikel & edukasi",
+        "title": "Artikel Terbaru",
+        "description": "Gunakan blog untuk edukasi pelanggan, menjawab FAQ, dan memperkuat SEO bisnis.",
+        "limit": 3
+    },
+    "lead_form": {
+        "title": "Butuh Bantuan Memilih Produk atau Layanan?",
+        "text": "Isi form singkat ini untuk konsultasi, permintaan penawaran, booking, atau pertanyaan lainnya.",
+        "button": "Kirim Permintaan"
+    },
+    "portfolio_highlight": {
+        "eyebrow": "Portfolio & showcase",
+        "title": "Bukti Karya, Project, atau Penawaran Unggulan",
+        "description": "Tampilkan karya, case study, project, produk unggulan, atau bukti hasil agar pengunjung lebih yakin.",
+        "button_label": "Lihat Portfolio",
+        "button_url": "/portfolio",
+        "limit": 3
+    },
+    "updated_at": "2026-05-30T11:56:39+07:00"
+}

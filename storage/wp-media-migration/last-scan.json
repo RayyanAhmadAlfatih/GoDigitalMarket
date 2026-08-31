@@ -1,0 +1,7 @@
+{
+  "version": "WordPress Media Migration",
+  "generated_at": "",
+  "health_score": 100,
+  "counts": {"total":0,"remote":0,"wp_uploads":0,"downloaded":0,"not_downloaded":0,"local":0,"unsupported":0,"rewrite_ready":0,"external_remote":0},
+  "rows": []
+}

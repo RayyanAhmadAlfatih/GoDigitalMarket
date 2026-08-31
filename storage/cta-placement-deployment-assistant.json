@@ -1,0 +1,29 @@
+{
+    "enabled": true,
+    "deployment_note": "Pakai halaman ini untuk mengubah winner Offer Lab menjadi rencana pemasangan CTA yang jelas dan bisa dipantau.",
+    "deployments": [
+        {
+            "id": "konsultasi-cepat-wa-homepage_hero",
+            "variant_id": "konsultasi-cepat-wa",
+            "variant_title": "Konsultasi Cepat via WhatsApp",
+            "placement": "homepage_hero",
+            "placement_label": "Homepage Hero",
+            "priority": "high",
+            "status": "planned",
+            "target_label": "Homepage Hero",
+            "target_url": "/",
+            "admin_url": "admin/homepage",
+            "headline": "Butuh rekomendasi yang paling cocok?",
+            "subheadline": "Ceritakan kebutuhan Anda, tim kami bantu arahkan pilihan terbaik dengan bahasa yang simpel.",
+            "cta_label": "Konsultasi via WhatsApp",
+            "cta_url": "/kontak",
+            "proof_note": "Respons cepat, arahan jelas, dan tidak memaksa langsung checkout.",
+            "hypothesis": "CTA konsultasi ringan akan menaikkan klik WhatsApp dari pengunjung yang belum siap membeli.",
+            "deployment_note": "Area pertama yang dilihat pengunjung. Cocok untuk winner paling kuat.",
+            "last_result_note": "",
+            "created_at": "2026-05-30T15:48:09+07:00",
+            "updated_at": "2026-05-30T15:50:16+07:00"
+        }
+    ],
+    "updated_at": "2026-05-30T15:50:16+07:00"
+}

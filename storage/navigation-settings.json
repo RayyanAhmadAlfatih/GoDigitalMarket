@@ -1,0 +1,190 @@
+{
+    "header": {
+        "show_topbar": true,
+        "topbar_text": "Website katalog, landing page, checkout, dan WhatsApp selling untuk UMKM",
+        "show_topbar_phone": true,
+        "show_topbar_whatsapp": true,
+        "show_logo": true,
+        "show_menu": true,
+        "show_search": true,
+        "search_placeholder": "Cari produk, layanan, atau artikel...",
+        "show_header_cta": false,
+        "header_cta_label": "Konsultasi",
+        "header_cta_url": "/kontak",
+        "header_cta_new_tab": false
+    },
+    "menu_items": [
+        {
+            "label": "Home",
+            "url": "/",
+            "enabled": true,
+            "new_tab": false,
+            "children": []
+        },
+        {
+            "label": "Katalog",
+            "url": "/katalog",
+            "enabled": true,
+            "new_tab": false,
+            "children": []
+        },
+        {
+            "label": "Layanan",
+            "url": "/layanan",
+            "enabled": true,
+            "new_tab": false,
+            "children": []
+        },
+        {
+            "label": "Portfolio",
+            "url": "/portfolio",
+            "enabled": false,
+            "new_tab": false,
+            "children": []
+        },
+        {
+            "label": "Artikel",
+            "url": "/artikel",
+            "enabled": true,
+            "new_tab": false,
+            "children": []
+        },
+        {
+            "label": "Tentang Kami",
+            "url": "/tentang-kami",
+            "enabled": true,
+            "new_tab": false,
+            "children": []
+        },
+        {
+            "label": "Kontak",
+            "url": "/kontak",
+            "enabled": true,
+            "new_tab": false,
+            "children": []
+        }
+    ],
+    "footer": {
+        "show_brand_column": true,
+        "brand_description": "Template website commerce untuk UMKM: katalog produk, layanan, landing page, checkout, WhatsApp selling, dan artikel SEO.",
+        "show_social_links": true,
+        "show_contact_line": true,
+        "copyright_text": "© {year} {site}. All rights reserved."
+    },
+    "footer_columns": [
+        {
+            "title": "Katalog",
+            "links": [
+                {
+                    "label": "Produk Fisik",
+                    "url": "/katalog",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Jasa & Layanan",
+                    "url": "/layanan",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Produk Digital",
+                    "url": "/katalog?category=Produk%20Digital",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Booking / Reservasi",
+                    "url": "/katalog?category=Booking",
+                    "enabled": true,
+                    "new_tab": false
+                }
+            ]
+        },
+        {
+            "title": "Halaman",
+            "links": [
+                {
+                    "label": "Tentang Kami",
+                    "url": "/tentang-kami",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Kontak",
+                    "url": "/kontak",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Portfolio",
+                    "url": "/portfolio",
+                    "enabled": false,
+                    "new_tab": false
+                },
+                {
+                    "label": "Artikel",
+                    "url": "/artikel",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Checkout",
+                    "url": "/checkout",
+                    "enabled": true,
+                    "new_tab": false
+                }
+            ]
+        },
+        {
+            "title": "Panduan",
+            "links": [
+                {
+                    "label": "Panduan Bisnis",
+                    "url": "/artikel",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Marketing & SEO",
+                    "url": "/artikel?kategori=marketing-seo",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Checkout & Pembayaran",
+                    "url": "/artikel?kategori=checkout-pembayaran",
+                    "enabled": true,
+                    "new_tab": false
+                },
+                {
+                    "label": "Privacy Policy",
+                    "url": "/privacy-policy",
+                    "enabled": true,
+                    "new_tab": false
+                }
+            ]
+        }
+    ],
+    "bottom_links": [
+        {
+            "label": "Privacy Policy",
+            "url": "/privacy-policy",
+            "enabled": true,
+            "new_tab": false
+        },
+        {
+            "label": "Terms",
+            "url": "/terms",
+            "enabled": true,
+            "new_tab": false
+        },
+        {
+            "label": "Sitemap",
+            "url": "/sitemap.xml",
+            "enabled": true,
+            "new_tab": false
+        }
+    ],
+    "updated_at": "2026-05-30T10:39:30+07:00"
+}

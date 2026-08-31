@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /storage/
+Disallow: /logs/
+Disallow: /cache/
+Disallow: /tools/
+Disallow: /docs/internal/
+
+Sitemap: /sitemap.xml

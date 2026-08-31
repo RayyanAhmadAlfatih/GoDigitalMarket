@@ -1,0 +1,16 @@
+{
+  "name": "UMKM Commerce Template",
+  "short_name": "UMKM Commerce",
+  "description": "Template website commerce untuk katalog produk, jasa, landing page, checkout, dan WhatsApp selling.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f0f7ff",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {
+      "src": "assets/images/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}

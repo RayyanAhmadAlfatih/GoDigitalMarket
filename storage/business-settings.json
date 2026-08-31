@@ -1,0 +1,173 @@
+{
+    "business_mode": "hybrid",
+    "layout_mode": "multi_page",
+    "schema_profile": "LocalBusiness",
+    "recommended_homepage": "catalog",
+    "labels": {
+        "catalog": "Katalog",
+        "product": "Produk/Jasa",
+        "service": "Layanan",
+        "portfolio": "Portfolio",
+        "checkout": "Checkout",
+        "lead": "Lead",
+        "article": "Artikel",
+        "primary_cta": "Konsultasi / Pesan"
+    },
+    "visibility": {
+        "catalog": true,
+        "services": true,
+        "portfolio": true,
+        "articles": true,
+        "checkout": true,
+        "lead_forms": true
+    },
+    "categories": {
+        "catalog": [
+            {
+                "label": "Produk Fisik",
+                "slug": "produk-fisik",
+                "description": "Barang yang dikirim ke pelanggan.",
+                "enabled": true
+            },
+            {
+                "label": "Jasa & Layanan",
+                "slug": "jasa-layanan",
+                "description": "Layanan profesional atau konsultasi.",
+                "enabled": true
+            },
+            {
+                "label": "Produk Digital",
+                "slug": "produk-digital",
+                "description": "File, template, e-book, atau akses digital.",
+                "enabled": true
+            },
+            {
+                "label": "E-book",
+                "slug": "e-book",
+                "description": "PDF, workbook, panduan, dan file download.",
+                "enabled": true
+            },
+            {
+                "label": "E-course",
+                "slug": "e-course",
+                "description": "Kelas online, video course, dan program belajar.",
+                "enabled": true
+            },
+            {
+                "label": "Kuliner",
+                "slug": "kuliner",
+                "description": "Menu makanan, minuman, katering, dan frozen food.",
+                "enabled": true
+            },
+            {
+                "label": "Booking",
+                "slug": "booking",
+                "description": "Reservasi, appointment, rental, atau layanan terjadwal.",
+                "enabled": true
+            },
+            {
+                "label": "Custom Order",
+                "slug": "custom-order",
+                "description": "Pesanan khusus, quotation, atau paket custom.",
+                "enabled": true
+            },
+            {
+                "label": "Paket / Bundle",
+                "slug": "paket-bundle",
+                "description": "Paket gabungan produk/jasa/digital.",
+                "enabled": true
+            },
+            {
+                "label": "Promo",
+                "slug": "promo",
+                "description": "Campaign, diskon, atau penawaran terbatas.",
+                "enabled": true
+            }
+        ],
+        "article": [
+            {
+                "label": "Panduan Bisnis",
+                "slug": "panduan-bisnis",
+                "description": "Tips mengelola katalog, penawaran, trust, dan komunikasi pelanggan.",
+                "enabled": true
+            },
+            {
+                "label": "Produk & Layanan",
+                "slug": "produk-layanan",
+                "description": "Edukasi produk, jasa, paket, booking, dan value penawaran.",
+                "enabled": true
+            },
+            {
+                "label": "Marketing & SEO",
+                "slug": "marketing-seo",
+                "description": "Artikel SEO, landing page, CTA, conversion, dan campaign.",
+                "enabled": true
+            },
+            {
+                "label": "Checkout & Pembayaran",
+                "slug": "checkout-pembayaran",
+                "description": "Order, invoice, pembayaran manual, dan follow-up pelanggan.",
+                "enabled": true
+            },
+            {
+                "label": "Info Lokal",
+                "slug": "info-lokal",
+                "description": "Area layanan, cabang, pengiriman, dan kebutuhan lokal.",
+                "enabled": true
+            },
+            {
+                "label": "Promo & Layanan",
+                "slug": "promo-layanan",
+                "description": "Promo, paket campaign, dan update layanan bisnis.",
+                "enabled": true
+            },
+            {
+                "label": "Portfolio / Case Study",
+                "slug": "portfolio-case-study",
+                "description": "Cerita hasil kerja, project, testimoni, dan bukti sosial.",
+                "enabled": true
+            },
+            {
+                "label": "Personal Branding",
+                "slug": "personal-branding",
+                "description": "Insight, opini, dan konten authority untuk figur/pakar.",
+                "enabled": true
+            }
+        ],
+        "portfolio": [
+            {
+                "label": "Case Study",
+                "slug": "case-study",
+                "description": "Cerita masalah, solusi, proses, dan hasil.",
+                "enabled": true
+            },
+            {
+                "label": "Project Client",
+                "slug": "project-client",
+                "description": "Project yang pernah dikerjakan untuk klien.",
+                "enabled": true
+            },
+            {
+                "label": "Desain / Kreatif",
+                "slug": "desain-kreatif",
+                "description": "Logo, desain visual, konten, foto, video, atau aset kreatif.",
+                "enabled": true
+            },
+            {
+                "label": "Website / Aplikasi",
+                "slug": "website-aplikasi",
+                "description": "Website, landing page, aplikasi, atau sistem digital.",
+                "enabled": true
+            },
+            {
+                "label": "Testimoni / Result",
+                "slug": "testimoni-result",
+                "description": "Hasil pelanggan, review, dan bukti performa.",
+                "enabled": true
+            }
+        ]
+    },
+    "notes": "",
+    "allow_empty_categories": false,
+    "updated_at": "2026-05-30T10:39:30+07:00"
+}

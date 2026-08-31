@@ -1,0 +1,271 @@
+{
+  "version": "Template",
+  "updated_at": "2026-06-07T07:06:12+07:00",
+  "pages": [
+    {
+      "id": "lp_seed_umkm_sales_page",
+      "title": "Contoh Sales Page UMKM",
+      "slug": "contoh-sales-page-umkm",
+      "status": "draft",
+      "layout_mode": "focus",
+      "hide_header": false,
+      "hide_footer": false,
+      "hide_floating_wa": false,
+      "show_nav_only": false,
+      "motion_enabled": true,
+      "motion_style": "fade-up",
+      "indexable": false,
+      "meta_title": "Contoh Sales Page UMKM",
+      "meta_description": "Contoh landing page general untuk produk, jasa, lead magnet, atau promosi UMKM.",
+      "meta_keywords": "sales page umkm, landing page umkm, template website",
+      "og_image": "",
+      "tracking_label": "LP Contoh UMKM",
+      "canonical_url": "",
+      "legacy_url": "",
+      "original_url": "",
+      "wp_post_id": "",
+      "wp_post_type": "",
+      "migration_batch_id": "",
+      "ab_tests": {
+        "cta": {
+          "enabled": false,
+          "name": "CTA Button Test",
+          "variant_a": {
+            "label": "A - Control",
+            "button_text": "",
+            "button_url": ""
+          },
+          "variant_b": {
+            "label": "B - Variant",
+            "button_text": "",
+            "button_url": ""
+          }
+        },
+        "form": {
+          "enabled": false,
+          "name": "Form Copy Test",
+          "variant_a": {
+            "label": "A - Control",
+            "headline": "",
+            "text": "",
+            "submit_text": "",
+            "lead_segment": ""
+          },
+          "variant_b": {
+            "label": "B - Variant",
+            "headline": "",
+            "text": "",
+            "submit_text": "",
+            "lead_segment": ""
+          }
+        }
+      },
+      "full_html_mode": false,
+      "raw_html_document": "",
+      "blocks": [
+        {
+          "type": "hero_offer",
+          "headline": "Tampilkan Penawaran Utama Bisnis Anda",
+          "subheadline": "Gunakan landing page ini untuk menjelaskan produk, jasa, promo, atau lead magnet dengan CTA yang jelas.",
+          "text": "Gunakan landing page ini untuk menjelaskan produk, jasa, promo, atau lead magnet dengan CTA yang jelas.",
+          "primary_text": "Konsultasi Sekarang",
+          "primary_url": "#lead-form",
+          "button_text": "Konsultasi Sekarang",
+          "button_url": "#lead-form",
+          "form_source": "lp_builtin",
+          "lead_score": "0",
+          "section_effect": "gradient-glow",
+          "animation_style": "fade-up",
+          "block_goal": "awareness",
+          "cta_role": "primary",
+          "engine_internal_links": false,
+          "fields": [
+            {
+              "name": "name",
+              "label": "Nama Lengkap",
+              "type": "text",
+              "required": true,
+              "placeholder": "Nama Anda",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "phone",
+              "label": "Nomor WhatsApp",
+              "type": "tel",
+              "required": true,
+              "placeholder": "08xxxxxxxxxx",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "email",
+              "label": "Email",
+              "type": "email",
+              "required": false,
+              "placeholder": "nama@email.com",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "need",
+              "label": "Kebutuhan",
+              "type": "select",
+              "required": true,
+              "placeholder": "Pilih kebutuhan",
+              "options": [
+                "Konsultasi produk",
+                "Tanya stok dan harga",
+                "Minta penawaran",
+                "Order sekarang"
+              ],
+              "system_field": true
+            },
+            {
+              "name": "message",
+              "label": "Catatan Kebutuhan",
+              "type": "textarea",
+              "required": false,
+              "placeholder": "Tulis kebutuhan, lokasi, tanggal, atau pertanyaan Anda.",
+              "options": [],
+              "system_field": true
+            }
+          ]
+        },
+        {
+          "type": "benefits",
+          "headline": "Kenapa pelanggan memilih Anda?",
+          "form_source": "lp_builtin",
+          "lead_score": "0",
+          "section_effect": "soft-card",
+          "animation_style": "fade-up",
+          "block_goal": "trust",
+          "engine_internal_links": false,
+          "items": [
+            "Benefit utama bisnis",
+            "Proses mudah dipahami",
+            "Bisa konsultasi via WhatsApp"
+          ],
+          "fields": [
+            {
+              "name": "name",
+              "label": "Nama Lengkap",
+              "type": "text",
+              "required": true,
+              "placeholder": "Nama Anda",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "phone",
+              "label": "Nomor WhatsApp",
+              "type": "tel",
+              "required": true,
+              "placeholder": "08xxxxxxxxxx",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "email",
+              "label": "Email",
+              "type": "email",
+              "required": false,
+              "placeholder": "nama@email.com",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "need",
+              "label": "Kebutuhan",
+              "type": "select",
+              "required": true,
+              "placeholder": "Pilih kebutuhan",
+              "options": [
+                "Konsultasi produk",
+                "Tanya stok dan harga",
+                "Minta penawaran",
+                "Order sekarang"
+              ],
+              "system_field": true
+            },
+            {
+              "name": "message",
+              "label": "Catatan Kebutuhan",
+              "type": "textarea",
+              "required": false,
+              "placeholder": "Tulis kebutuhan, lokasi, tanggal, atau pertanyaan Anda.",
+              "options": [],
+              "system_field": true
+            }
+          ]
+        },
+        {
+          "type": "lead_form",
+          "headline": "Minta Penawaran",
+          "text": "Isi data singkat agar admin bisa menghubungi Anda.",
+          "form_source": "lp_builtin",
+          "lead_score": "0",
+          "section_effect": "soft-card",
+          "animation_style": "fade-up",
+          "block_goal": "lead",
+          "cta_role": "form",
+          "engine_internal_links": false,
+          "fields": [
+            {
+              "name": "name",
+              "label": "Nama Lengkap",
+              "type": "text",
+              "required": true,
+              "placeholder": "Nama Anda",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "phone",
+              "label": "Nomor WhatsApp",
+              "type": "tel",
+              "required": true,
+              "placeholder": "08xxxxxxxxxx",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "email",
+              "label": "Email",
+              "type": "email",
+              "required": false,
+              "placeholder": "nama@email.com",
+              "options": [],
+              "system_field": true
+            },
+            {
+              "name": "need",
+              "label": "Kebutuhan",
+              "type": "select",
+              "required": true,
+              "placeholder": "Pilih kebutuhan",
+              "options": [
+                "Konsultasi produk",
+                "Tanya stok dan harga",
+                "Minta penawaran",
+                "Order sekarang"
+              ],
+              "system_field": true
+            },
+            {
+              "name": "message",
+              "label": "Catatan Kebutuhan",
+              "type": "textarea",
+              "required": false,
+              "placeholder": "Tulis kebutuhan, lokasi, tanggal, atau pertanyaan Anda.",
+              "options": [],
+              "system_field": true
+            }
+          ]
+        }
+      ],
+      "created_at": "2026-05-28 00:00:00",
+      "updated_at": "2026-05-28 00:00:00"
+    }
+  ]
+}
