@@ -288,7 +288,7 @@ if (!function_exists('inquiry_append_custom_fields_to_message')) {
         if (!$lines) {
             return $message;
         }
-        $extra = "Detail Form Landing Page:\n" . implode("\n", $lines);
+        $extra = "Detail Form:\n" . implode("\n", $lines);
         return inquiry_multiline_clean(trim($message . "\n\n" . $extra), 1800);
     }
 }
