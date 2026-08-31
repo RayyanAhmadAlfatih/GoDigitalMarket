@@ -656,8 +656,20 @@ if (!function_exists('cloud_backup_send_payload')) {
         if ($url === '') {
             return ['ok' => false, 'message' => 'Apps Script URL belum diisi. Export lokal tetap tersedia.'];
         }
-        if (!preg_match('#^https://script\.google\.com/|^https://script\.googleusercontent\.com/#i', $url) && !preg_match('#^https://#i', $url)) {
-            return ['ok' => false, 'message' => 'URL Apps Script harus HTTPS.'];
+        $parts = @parse_url($url);
+        $scheme = strtolower((string)($parts['scheme'] ?? ''));
+        $host = strtolower((string)($parts['host'] ?? ''));
+        $allowedHosts = ['script.google.com', 'script.googleusercontent.com'];
+
+        if (
+            !is_array($parts)
+            || $scheme !== 'https'
+            || !in_array($host, $allowedHosts, true)
+            || isset($parts['user'])
+            || isset($parts['pass'])
+            || isset($parts['port'])
+        ) {
+            return ['ok' => false, 'message' => 'URL Apps Script harus HTTPS dan memakai host Google Apps Script resmi.'];
         }
         $token = trim((string)($settings['apps_script_token'] ?? ''));
         if ($token !== '') {
