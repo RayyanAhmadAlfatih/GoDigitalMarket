@@ -1,0 +1,128 @@
+name: Security Hardening PHP 8.3 Regression
+
+on:
+  push:
+    branches:
+      - security-launch-hardening-20260831
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, curl, fileinfo, openssl, pdo_mysql, gd
+          coverage: none
+
+      - name: Runtime info
+        run: |
+          php -v
+          php -m | grep -Ei 'mbstring|curl|fileinfo|openssl|pdo_mysql|gd'
+
+      - name: Lint all PHP source
+        shell: bash
+        run: |
+          set -o pipefail
+          count=0
+          while IFS= read -r -d '' f; do
+            php -l "$f"
+            count=$((count+1))
+          done < <(find . -type f -name '*.php' -not -path './.git/*' -print0)
+          echo "PHP files linted: $count"
+          test "$count" -ge 264
+
+      - name: Assert security hardening markers
+        shell: bash
+        run: |
+          grep -Fq "$_ENV['APP_ENV'] ?? 'production'" config/app.php
+          grep -Fq "APP_ENV !== 'production' && $appDebugRequested" config/app.php
+          grep -Fq "INSTALLER_TOKEN" core/first-run.php
+          grep -Fq "strlen($expected) < 24" core/first-run.php
+          grep -Fq "public_endpoint_is_rate_limited($loginScope, 20, 900, 0)" pages/admin-login.php
+          grep -Fq "script.googleusercontent.com" core/cloud-backup.php
+          grep -Fq "in_array($host, $allowedHosts, true)" core/cloud-backup.php
+          grep -Fq "verified_amount_mismatch" core/payment-gateway.php
+          grep -Fq "$amount === $expectedOrderAmount" core/payment-gateway.php
+          grep -Fq "session.use_strict_mode" core/security.php
+          grep -Fq "Strict-Transport-Security" core/security.php
+          grep -Fq "APP_ENV=production" .env.example
+          grep -Fq "APP_DEBUG=false" .env.example
+          grep -Fq "APP_KEY=" .env.example
+
+      - name: Verify production Host header cannot enable debug
+        shell: bash
+        run: |
+          cp .env.example .env
+          sed -i 's#^APP_URL=.*#APP_URL=http://127.0.0.1:8080#' .env
+          sed -i 's#^APP_ENV=.*#APP_ENV=production#' .env
+          sed -i 's#^APP_DEBUG=.*#APP_DEBUG=true#' .env
+          php -r '
+            $_SERVER["HTTP_HOST"]="localhost";
+            $_SERVER["SCRIPT_NAME"]="/index.php";
+            require "config/app.php";
+            if (APP_ENV !== "production" || APP_DEBUG !== false) {
+              fwrite(STDERR, "Host header/debug guard failed\n");
+              exit(1);
+            }
+            echo "Production env remains production; debug forced off.\n";
+          '
+
+      - name: Static dangerous-function scan
+        shell: bash
+        run: |
+          hits="$(grep -RInE --include='*.php' --exclude-dir=.git --exclude-dir=vendor --exclude-dir=node_modules '\b(eval|shell_exec|system|passthru|proc_open|popen)\s*\(' . || true)"
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            exit 1
+          fi
+
+      - name: Boot smoke test
+        shell: bash
+        run: |
+          cp .env.example .env
+          sed -i 's#^APP_ENV=.*#APP_ENV=development#' .env
+          sed -i 's#^APP_DEBUG=.*#APP_DEBUG=false#' .env
+          sed -i 's#^APP_URL=.*#APP_URL=http://127.0.0.1:8080#' .env
+          php -S 127.0.0.1:8080 index.php > /tmp/gdm-server.log 2>&1 &
+          PID=$!
+          sleep 3
+          for path in / /katalog /layanan /artikel /admin/login; do
+            code=$(curl -sS -o /tmp/body -w '%{http_code}' "http://127.0.0.1:8080$path" || true)
+            echo "$path => $code"
+            if [ "$code" != "200" ]; then
+              cat /tmp/gdm-server.log
+              kill $PID || true
+              exit 1
+            fi
+          done
+          kill $PID || true
+          cat /tmp/gdm-server.log
+
+      - name: Installer production guard smoke test
+        shell: bash
+        run: |
+          cp .env.example .env
+          sed -i 's#^APP_ENV=.*#APP_ENV=production#' .env
+          sed -i 's#^APP_DEBUG=.*#APP_DEBUG=false#' .env
+          sed -i 's#^APP_URL=.*#APP_URL=http://127.0.0.1:8081#' .env
+          sed -i 's#^INSTALLER_ENABLED=.*#INSTALLER_ENABLED=false#' .env
+          php -S 127.0.0.1:8081 index.php > /tmp/gdm-installer.log 2>&1 &
+          PID=$!
+          sleep 2
+          code=$(curl -sS -o /tmp/install-body -w '%{http_code}' http://127.0.0.1:8081/install || true)
+          echo "/install => $code"
+          if grep -qiE 'buat akun owner|simpan.*setup|first run setup' /tmp/install-body; then
+            echo "Installer appears actionable while disabled."
+            cat /tmp/install-body
+            kill $PID || true
+            exit 1
+          fi
+          kill $PID || true
+
+      - name: Summary
+        run: echo "PHP 8.3 hardening regression gate passed."
