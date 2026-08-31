@@ -259,7 +259,7 @@ require_once ROOT_PATH . '/components/layout/header.php';
                     </div>
 
                     <div class="admin-form-actions" style="margin-top:1rem;flex-wrap:wrap">
-                        <?php foreach (['physical' => 'Preset Produk Fisik', 'digital' => 'Preset Produk Digital', 'service' => 'Preset Jasa / Layanan', 'booking' => 'Preset Booking'] as $presetKey => $presetLabel): ?>
+                        <?php foreach (['auto' => 'Auto Sesuai Jenis Item', 'physical' => 'Preset Produk Fisik', 'digital' => 'Preset Produk Digital', 'service' => 'Preset Jasa / Layanan', 'booking' => 'Preset Booking'] as $presetKey => $presetLabel): ?>
                             <a class="admin-btn <?= $profilePresetRequest === $presetKey ? 'admin-btn--primary' : 'admin-btn--soft'; ?>" href="<?= esc(url('admin/form-checkout?profile_product_id=' . $profileProductId . '&preset=' . $presetKey . '#checkout-product-profile')); ?>"><?= esc($presetLabel); ?></a>
                         <?php endforeach; ?>
                     </div>
