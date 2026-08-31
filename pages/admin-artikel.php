@@ -301,9 +301,7 @@ function admin_import_cleanup(string $token): void
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     require_csrf();
 
-    if (admin_password_needs_setup($adminPassword)) {
-        $error = 'ADMIN_PASSWORD belum aman. Ganti nilai ADMIN_PASSWORD di file .env dengan password kuat sebelum login admin.';
-    } elseif (!admin_article_logged_in()) {
+    if (!admin_article_logged_in()) {
         if (hash_equals($adminPassword, (string)($_POST['password'] ?? ''))) {
             $_SESSION['admin_articles_logged_in'] = true;
             if (function_exists('activity_log_record')) {
