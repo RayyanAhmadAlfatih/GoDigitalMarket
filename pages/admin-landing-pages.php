@@ -101,7 +101,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 if (function_exists('activity_log_record')) {
                     activity_log_record('duplicate', 'landing_page', (string)$copy['id'], 'Landing page diduplikat.', ['sumber_id' => $id, 'slug' => $copy['slug'] ?? '']);
                 }
-                redirect_302('admin/landing-pages?edit=' . rawurlencode((string)$copy['id']) . '&message=' . rawurlencode('Landing page berhasil diduplikat sebagai draft.'));
+                redirect_302('admin/landing-pages?message=' . rawurlencode('Landing page berhasil diduplikat sebagai draft. Copy baru sudah ditambahkan ke daftar.'));
             }
             $error = 'Gagal menduplikat landing page.';
         }
