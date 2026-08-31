@@ -385,7 +385,7 @@ if (!function_exists('inquiry_normalize_payload')) {
 }
 
 if (!function_exists('inquiry_store')) {
-    function inquiry_store(array $inquiry): bool
+    function inquiry_store(array $inquiry, bool $idempotent = false): bool
     {
         if (!inquiry_enabled()) {
             return false;
@@ -393,14 +393,54 @@ if (!function_exists('inquiry_store')) {
         if (!is_dir(LOGS_PATH)) {
             @mkdir(LOGS_PATH, 0775, true);
         }
+
         $mysqlOk = false;
         $mysqlActive = function_exists('storage_mysql_enabled') && storage_mysql_enabled('inquiries');
         if ($mysqlActive && function_exists('storage_adapter_mysql_append_inquiry')) {
             $mysqlOk = storage_adapter_mysql_append_inquiry($inquiry);
         }
+
         $file = inquiry_log_file();
-        $line = json_encode($inquiry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
-        $fileOk = @file_put_contents($file, $line, FILE_APPEND | LOCK_EX) !== false;
+        $encoded = json_encode($inquiry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $fileOk = false;
+
+        if (is_string($encoded)) {
+            $line = $encoded . PHP_EOL;
+            $inquiryId = inquiry_clean((string)($inquiry['id'] ?? ''), 80);
+
+            if ($idempotent && $inquiryId !== '') {
+                $handle = @fopen($file, 'c+');
+                if ($handle && @flock($handle, LOCK_EX)) {
+                    $exists = false;
+                    rewind($handle);
+                    while (($existingLine = fgets($handle)) !== false) {
+                        $existing = json_decode(trim($existingLine), true);
+                        if (is_array($existing) && (string)($existing['id'] ?? '') === $inquiryId) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+
+                    if ($exists) {
+                        $fileOk = true;
+                    } else {
+                        fseek($handle, 0, SEEK_END);
+                        $fileOk = fwrite($handle, $line) !== false;
+                        if ($fileOk) {
+                            fflush($handle);
+                        }
+                    }
+
+                    @flock($handle, LOCK_UN);
+                    fclose($handle);
+                } elseif (is_resource($handle)) {
+                    fclose($handle);
+                }
+            } else {
+                $fileOk = @file_put_contents($file, $line, FILE_APPEND | LOCK_EX) !== false;
+            }
+        }
+
         if ($mysqlActive) {
             return $mysqlOk || (function_exists('storage_adapter_safe_fallback_enabled') && storage_adapter_safe_fallback_enabled() && $fileOk);
         }
