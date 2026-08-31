@@ -425,15 +425,15 @@ function normalize_site_url(
 |--------------------------------------------------------------------------
 */
 
+$appEnv = strtolower(trim((string)($_ENV['APP_ENV'] ?? 'production')));
+
+if (!in_array($appEnv, ['production', 'staging', 'development', 'testing'], true)) {
+    $appEnv = 'production';
+}
+
 define(
-
     'APP_ENV',
-
-    app_is_localhost()
-
-    ? 'development'
-
-    : 'production'
+    $appEnv
 );
 
 /*
@@ -447,9 +447,14 @@ define(
     'Template'
 );
 
+$appDebugRequested = filter_var(
+    (string)($_ENV['APP_DEBUG'] ?? 'false'),
+    FILTER_VALIDATE_BOOLEAN
+);
+
 define(
     'APP_DEBUG',
-    APP_ENV === 'development'
+    APP_ENV !== 'production' && $appDebugRequested
 );
 
 /*
