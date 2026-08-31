@@ -127,23 +127,5 @@ jobs:
             echo "Production installer gate is locked.\n";
           '
 
-      - name: Package checkout profile patch
-        shell: bash
-        run: |
-          mkdir -p checkout-profile-patch/core checkout-profile-patch/pages checkout-profile-patch/components
-          cp core/checkout.php checkout-profile-patch/core/
-          cp core/order.php checkout-profile-patch/core/
-          cp pages/admin-form-checkout.php checkout-profile-patch/pages/
-          cp pages/checkout.php checkout-profile-patch/pages/
-          cp components/order-form.php checkout-profile-patch/components/
-
-      - name: Upload checkout profile patch
-        uses: actions/upload-artifact@v4
-        with:
-          name: godigitalmarket-checkout-profile-patch-20260901
-          path: checkout-profile-patch/
-          if-no-files-found: error
-          retention-days: 7
-
       - name: Summary
         run: echo "PHP 8.3 hardening regression gate passed."
