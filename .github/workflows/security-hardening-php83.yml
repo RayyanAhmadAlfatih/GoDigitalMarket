@@ -127,22 +127,5 @@ jobs:
             echo "Production installer gate is locked.\n";
           '
 
-      - name: Package targeted server patch
-        shell: bash
-        run: |
-          mkdir -p targeted-patch/pages targeted-patch/core
-          cp pages/admin-landing-pages.php targeted-patch/pages/
-          cp pages/form-submit.php targeted-patch/pages/
-          cp core/form-builder.php targeted-patch/core/
-          cp core/inquiry.php targeted-patch/core/
-
-      - name: Upload targeted server patch
-        uses: actions/upload-artifact@v4
-        with:
-          name: godigitalmarket-targeted-patch-20260901
-          path: targeted-patch/
-          if-no-files-found: error
-          retention-days: 7
-
       - name: Summary
         run: echo "PHP 8.3 hardening regression gate passed."
