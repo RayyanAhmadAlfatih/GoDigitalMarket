@@ -75,15 +75,43 @@ if (!function_exists('first_run_owner_auth_ready')) {
 if (!function_exists('first_run_installer_open')) {
     function first_run_installer_open(): bool
     {
-        if (!first_run_owner_auth_ready()) {
+        // Once an owner exists, installer access is owner-only.
+        if (first_run_owner_auth_ready()) {
+            return function_exists('admin_auth_is_logged_in')
+                && admin_auth_is_logged_in()
+                && function_exists('admin_users_current_role')
+                && admin_users_current_role() === 'owner';
+        }
+
+        // Local development may bootstrap without a token.
+        if (defined('APP_ENV') && APP_ENV !== 'production' && function_exists('app_is_localhost') && app_is_localhost()) {
             return true;
         }
 
-        if (first_run_bool_env('INSTALLER_ENABLED', false)) {
-            return true;
+        // Production bootstrap must be explicitly enabled and protected by a strong secret.
+        if (!first_run_bool_env('INSTALLER_ENABLED', false)) {
+            return false;
         }
 
-        return function_exists('admin_auth_is_logged_in') && admin_auth_is_logged_in() && function_exists('admin_users_current_role') && admin_users_current_role() === 'owner';
+        $expected = trim((string)($_ENV['INSTALLER_TOKEN'] ?? ''));
+        if (strlen($expected) < 24) {
+            return false;
+        }
+
+        $provided = trim((string)(
+            $_SERVER['HTTP_X_INSTALLER_TOKEN']
+            ?? $_GET['setup_token']
+            ?? $_POST['setup_token']
+            ?? $_SESSION['first_run_installer_token']
+            ?? ''
+        ));
+
+        if ($provided === '' || !hash_equals($expected, $provided)) {
+            return false;
+        }
+
+        $_SESSION['first_run_installer_token'] = $provided;
+        return true;
     }
 }
 
