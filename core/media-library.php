@@ -121,7 +121,11 @@ if (!function_exists('media_library_references')) {
             }
         }
 
-        foreach (function_exists('all_articles') ? all_articles() : [] as $article) {
+        $articleRows = function_exists('managed_articles')
+            ? managed_articles()
+            : (function_exists('all_articles') ? all_articles() : []);
+
+        foreach ($articleRows as $article) {
             $title = trim((string)($article['title'] ?? 'Artikel'));
             $id = (int)($article['id'] ?? 0);
             $source = (string)($article['source'] ?? $article['_source'] ?? 'admin');
