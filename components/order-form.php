@@ -7,7 +7,10 @@ if (!defined('APP_START')) {
 }
 
 $context = is_array($orderContext ?? null) ? $orderContext : [];
-$checkoutSettings = function_exists('checkout_settings') ? checkout_settings() : [];
+$product = is_array($context['product'] ?? null) ? $context['product'] : null;
+$checkoutSettings = function_exists('checkout_settings_for_product')
+    ? checkout_settings_for_product($product)
+    : (function_exists('checkout_settings') ? checkout_settings() : []);
 $title = (string)($context['title'] ?? ($checkoutSettings['headline'] ?? 'Ajukan Pemesanan'));
 $text = (string)($context['text'] ?? ($checkoutSettings['intro'] ?? 'Isi data pemesanan awal agar admin bisa menindaklanjuti dengan informasi produk, stok, dan jadwal yang jelas.'));
 $source = (string)($context['source'] ?? 'product-order-form');
@@ -18,7 +21,6 @@ $label = (string)($context['label'] ?? $title);
 $productTitle = (string)($context['product_title'] ?? $context['item_title'] ?? '');
 $productSlug = (string)($context['product_slug'] ?? '');
 $productUrl = (string)($context['product_url'] ?? $context['item_url'] ?? current_url());
-$product = is_array($context['product'] ?? null) ? $context['product'] : null;
 $price = (int)($context['price'] ?? 0);
 $button = (string)($context['button'] ?? ($checkoutSettings['button_label'] ?? 'Ajukan Pemesanan'));
 $needDefault = (string)($context['need'] ?? '');
@@ -59,6 +61,7 @@ $preorderStatus = function_exists('commerce_preorder_status') ? commerce_preorde
 $shippingNeeded = array_key_exists('shipping_needed', $context)
     ? (bool)$context['shipping_needed']
     : (function_exists('checkout_shipping_needed_for_product') ? checkout_shipping_needed_for_product($product) : true);
+$emailEnabled = !array_key_exists('email_enabled', $checkoutSettings) || !empty($checkoutSettings['email_enabled']);
 $quantityEnabled = !function_exists('checkout_field_enabled') || checkout_field_enabled('quantity', $checkoutSettings);
 $plannedDateEnabled = !function_exists('checkout_field_enabled') || checkout_field_enabled('planned_date', $checkoutSettings);
 $needEnabled = !function_exists('checkout_field_enabled') || checkout_field_enabled('need', $checkoutSettings);
@@ -67,7 +70,12 @@ $paymentMethodEnabled = !function_exists('checkout_field_enabled') || checkout_f
 $notesEnabled = !function_exists('checkout_field_enabled') || checkout_field_enabled('notes', $checkoutSettings);
 $addressEnabled = $shippingNeeded && (!function_exists('checkout_field_enabled') || checkout_field_enabled('address', $checkoutSettings));
 $shippingMethodEnabled = $shippingNeeded && (!function_exists('checkout_field_enabled') || checkout_field_enabled('shipping_method', $checkoutSettings));
-$emailRequired = !empty($checkoutSettings['email_required']);
+$emailRequired = $emailEnabled && !empty($checkoutSettings['email_required']);
+$plannedDateRequired = $plannedDateEnabled && !empty($checkoutSettings['planned_date_required']);
+$needRequired = $needEnabled && !empty($checkoutSettings['need_required']);
+$locationRequired = $locationEnabled && !empty($checkoutSettings['location_required']);
+$paymentMethodRequired = $paymentMethodEnabled && !empty($checkoutSettings['payment_method_required']);
+$notesRequired = $notesEnabled && !empty($checkoutSettings['notes_required']);
 $addressRequired = $addressEnabled && !empty($checkoutSettings['address_required']);
 $shippingRequired = $shippingMethodEnabled && !empty($checkoutSettings['shipping_method_required']);
 $summaryNote = (string)($checkoutSettings['summary_note'] ?? 'Ini belum pembayaran otomatis. Setelah order terkirim, Anda akan mendapat nomor referensi dan bisa lanjut konfirmasi via WhatsApp.');
@@ -149,6 +157,9 @@ $shippingEstimatorJson = json_encode($shippingEstimatorPayload, JSON_UNESCAPED_U
         <?php if (!$quantityEnabled): ?><input type="hidden" name="quantity" value="1"><?php endif; ?>
         <?php if (!$paymentMethodEnabled): ?><input type="hidden" name="payment_method" value="Belum Memilih"><?php endif; ?>
         <input type="hidden" name="page_path" value="<?= esc(current_uri() . (($_SERVER['QUERY_STRING'] ?? '') ? '?' . (string)$_SERVER['QUERY_STRING'] : '')); ?>">
+        <input type="hidden" name="checkout_profile_source" value="<?= esc((string)($checkoutSettings['_profile_source'] ?? 'global')); ?>">
+        <input type="hidden" name="checkout_profile_preset" value="<?= esc((string)($checkoutSettings['_profile_preset'] ?? 'global')); ?>">
+
         <div class="inquiry-hp" aria-hidden="true">
             <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
         </div>
@@ -162,10 +173,12 @@ $shippingEstimatorJson = json_encode($shippingEstimatorPayload, JSON_UNESCAPED_U
                 <span>Nomor WhatsApp/Telepon</span>
                 <input type="tel" name="phone" placeholder="08xxxxxxxxxx" autocomplete="tel" required>
             </label>
-            <label>
-                <span>Email <?= $emailRequired ? '' : '<small>(opsional)</small>'; ?></span>
-                <input type="email" name="email" placeholder="nama@email.com" autocomplete="email" <?= $emailRequired ? 'required' : ''; ?>>
-            </label>
+            <?php if ($emailEnabled): ?>
+                <label>
+                    <span>Email <?= $emailRequired ? '' : '<small>(opsional)</small>'; ?></span>
+                    <input type="email" name="email" placeholder="nama@email.com" autocomplete="email" <?= $emailRequired ? 'required' : ''; ?>>
+                </label>
+            <?php endif; ?>
             <?php if ($quantityEnabled): ?>
                 <label>
                     <span>Jumlah / Kebutuhan</span>
@@ -175,13 +188,13 @@ $shippingEstimatorJson = json_encode($shippingEstimatorPayload, JSON_UNESCAPED_U
             <?php if ($plannedDateEnabled): ?>
                 <label>
                     <span>Rencana Tanggal</span>
-                    <input type="date" name="planned_date">
+                    <input type="date" name="planned_date" <?= $plannedDateRequired ? 'required' : ''; ?>>
                 </label>
             <?php endif; ?>
             <?php if ($needEnabled): ?>
                 <label>
                     <span>Jenis Kebutuhan</span>
-                    <select name="need" required>
+                    <select name="need" <?= $needRequired ? 'required' : ''; ?>>
                         <option value="">Pilih kebutuhan</option>
                         <?php foreach ($needOptions as $option): ?>
                             <option value="<?= esc((string)$option); ?>" <?= $needDefault === (string)$option ? 'selected' : ''; ?>><?= esc((string)$option); ?></option>
@@ -194,7 +207,7 @@ $shippingEstimatorJson = json_encode($shippingEstimatorPayload, JSON_UNESCAPED_U
             <?php if ($locationEnabled): ?>
                 <label>
                     <span>Lokasi / Kota</span>
-                    <select name="location">
+                    <select name="location" <?= $locationRequired ? 'required' : ''; ?>>
                         <option value="">Pilih lokasi / area</option>
                         <?php foreach ($locationOptions as $option): ?>
                             <option value="<?= esc((string)$option); ?>" <?= $location === (string)$option ? 'selected' : ''; ?>><?= esc((string)$option); ?></option>
@@ -207,7 +220,7 @@ $shippingEstimatorJson = json_encode($shippingEstimatorPayload, JSON_UNESCAPED_U
             <?php if ($paymentMethodEnabled): ?>
                 <label>
                     <span>Preferensi Pembayaran</span>
-                    <select name="payment_method">
+                    <select name="payment_method" <?= $paymentMethodRequired ? 'required' : ''; ?>>
                         <?php foreach ($paymentOptions as $option): ?>
                             <option value="<?= esc((string)$option); ?>" <?= $paymentDefault === (string)$option ? 'selected' : ''; ?>><?= esc((string)$option); ?></option>
                         <?php endforeach; ?>
@@ -277,7 +290,7 @@ $shippingEstimatorJson = json_encode($shippingEstimatorPayload, JSON_UNESCAPED_U
         <?php if ($notesEnabled): ?>
             <label class="order-form__message">
                 <span>Catatan Pesanan</span>
-                <textarea name="message" rows="4" placeholder="Contoh: ingin booking dulu, minta foto terbaru, jadwal survey, estimasi kirim, atau catatan khusus lainnya."></textarea>
+                <textarea name="message" rows="4" placeholder="Contoh: ingin booking dulu, minta foto terbaru, jadwal survey, estimasi kirim, atau catatan khusus lainnya." <?= $notesRequired ? 'required' : ''; ?>></textarea>
             </label>
         <?php else: ?>
             <input type="hidden" name="message" value="">
