@@ -111,7 +111,7 @@ require_once ROOT_PATH . '/components/layout/header.php';
             <div class="checkout-form-wrap">
                 <?php
                 $orderContext = [
-                    'title' => $product ? 'Form Pemesanan ' . $productTitle : $checkoutHeadline,
+                    'title' => $checkoutHeadline,
                     'text' => $checkoutIntro,
                     'source' => $source,
                     'category' => $productCategory,
