@@ -635,11 +635,27 @@ if (!function_exists('payment_gateway_process_webhook')) {
  $mappedStatus = payment_gateway_map_payment_status($gatewayStatus);
  $orderUpdated = false;
  $orderFound = false;
+ $expectedOrderAmount = null;
+ $amountMatchesOrder = null;
 
  if (!empty($verify['verified']) && !empty($provider['auto_update_order']) && $reference !== '' && $mappedStatus !== '' && function_exists('order_update_status')) {
  $order = function_exists('payment_gateway_find_order_by_reference') ? payment_gateway_find_order_by_reference($reference) : (function_exists('order_find_by_reference') ? order_find_by_reference($reference, '') : null);
  if (is_array($order)) {
  $orderFound = true;
+
+ if ($mappedStatus === 'Lunas') {
+ $expectedOrderAmount = function_exists('payment_gateway_order_amount')
+     ? payment_gateway_order_amount($order)
+     : 0;
+ $amountMatchesOrder = $expectedOrderAmount > 0 && $amount > 0 && $amount === $expectedOrderAmount;
+
+ if (!$amountMatchesOrder) {
+ $verify['status'] = 'verified_amount_mismatch';
+ $verify['message'] = 'Signature/token valid, tetapi nominal webhook tidak cocok dengan total order. Order tidak ditandai lunas.';
+ }
+ }
+
+ if ($mappedStatus !== 'Lunas' || $amountMatchesOrder === true) {
  $currentStatus = (string)($order['status'] ?? 'Menunggu Pembayaran');
  if ($mappedStatus === 'Lunas') {
  $currentStatus = in_array($currentStatus, ['Baru', 'Menunggu Pembayaran'], true) ? 'Deal' : $currentStatus;
@@ -664,6 +680,7 @@ if (!function_exists('payment_gateway_process_webhook')) {
  );
  }
  }
+ }
 
  $event = [
  'id' => 'pgw_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)),
@@ -677,6 +694,8 @@ if (!function_exists('payment_gateway_process_webhook')) {
  'gateway_status' => $gatewayStatus,
  'mapped_payment_status' => $mappedStatus,
  'amount' => $amount,
+ 'expected_order_amount' => $expectedOrderAmount,
+ 'amount_matches_order' => $amountMatchesOrder,
  'order_found' => $orderFound,
  'order_updated' => $orderUpdated,
  'payload_hash' => hash('sha256', $rawBody),
