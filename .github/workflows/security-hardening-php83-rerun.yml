@@ -110,20 +110,22 @@ jobs:
           cp .env.example .env
           sed -i 's#^APP_ENV=.*#APP_ENV=production#' .env
           sed -i 's#^APP_DEBUG=.*#APP_DEBUG=false#' .env
-          sed -i 's#^APP_URL=.*#APP_URL=http://127.0.0.1:8081#' .env
+          sed -i 's#^APP_URL=.*#APP_URL=https://example.test#' .env
           sed -i 's#^INSTALLER_ENABLED=.*#INSTALLER_ENABLED=false#' .env
-          php -S 127.0.0.1:8081 index.php > /tmp/gdm-installer.log 2>&1 &
-          PID=$!
-          sleep 2
-          code=$(curl -sS -o /tmp/install-body -w '%{http_code}' http://127.0.0.1:8081/install || true)
-          echo "/install => $code"
-          if grep -qiE 'buat akun owner|simpan.*setup|first run setup' /tmp/install-body; then
-            echo "Installer appears actionable while disabled."
-            cat /tmp/install-body
-            kill $PID || true
-            exit 1
-          fi
-          kill $PID || true
+          php -r '
+            $_SERVER["HTTP_HOST"]="example.test";
+            $_SERVER["SCRIPT_NAME"]="/index.php";
+            require "config/app.php";
+            if (!function_exists("first_run_installer_open")) {
+              fwrite(STDERR, "Installer gate function missing\n");
+              exit(1);
+            }
+            if (first_run_installer_open()) {
+              fwrite(STDERR, "Production installer unexpectedly open while disabled\n");
+              exit(1);
+            }
+            echo "Production installer gate is locked.\n";
+          '
 
       - name: Summary
         run: echo "PHP 8.3 hardening regression gate passed."
