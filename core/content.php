@@ -53,13 +53,20 @@ function all_articles(): array
         );
 
         if ($storedArticles || article_starter_content_initialized()) {
-            $articles = article_dedupe_by_slug($storedArticles);
+            $publicArticles = array_values(array_filter(
+                $storedArticles,
+                static fn(array $article): bool => (string)($article['status'] ?? 'published') === 'published'
+            ));
+            $articles = article_dedupe_by_slug($publicArticles);
         } else {
             $seedArticles = array_map(
                 static fn(array $article): array => normalize_article(article_with_source($article, 'seed')),
                 require DATA_PATH . '/articles.php'
             );
-            $articles = article_dedupe_by_slug($seedArticles);
+            $articles = article_dedupe_by_slug(array_values(array_filter(
+                $seedArticles,
+                static fn(array $article): bool => (string)($article['status'] ?? 'published') === 'published'
+            )));
         }
 
         usort($articles, static function (array $a, array $b): int {
@@ -91,6 +98,8 @@ function normalize_article(array $article): array
     $article['author'] = trim((string)($article['author'] ?? SITE_NAME));
     $article['published_at'] = trim((string)($article['published_at'] ?? date('Y-m-d H:i:s')));
     $article['updated_at'] = trim((string)($article['updated_at'] ?? date('Y-m-d H:i:s')));
+    $status = strtolower(trim((string)($article['status'] ?? 'published')));
+    $article['status'] = in_array($status, ['draft', 'published'], true) ? $status : 'published';
     $article['featured'] = (bool)($article['featured'] ?? false);
     $article['content'] = (string)($article['content'] ?? '');
     $article['meta_title'] = trim((string)($article['meta_title'] ?? ''));
@@ -1190,7 +1199,7 @@ function article_create(array $article): int
     $article['updated_at'] = date('Y-m-d H:i:s');
 
     if (function_exists('storage_mysql_enabled') && storage_mysql_enabled('articles')) {
-        $stmt = db()->prepare('INSERT INTO articles (title, slug, category, excerpt, image, author, published_at, reading_time, featured, keywords, content, meta_title, meta_description, meta_keywords, canonical_url, og_title, og_description, focus_keyword, robots, breadcrumb_title, image_alt, image_title, schema_type, faq_json, whatsapp_label, whatsapp_phone, whatsapp_text, source) VALUES (:title, :slug, :category, :excerpt, :image, :author, :published_at, :reading_time, :featured, :keywords, :content, :meta_title, :meta_description, :meta_keywords, :canonical_url, :og_title, :og_description, :focus_keyword, :robots, :breadcrumb_title, :image_alt, :image_title, :schema_type, :faq_json, :whatsapp_label, :whatsapp_phone, :whatsapp_text, :source)');
+        $stmt = db()->prepare('INSERT INTO articles (title, slug, category, excerpt, image, author, published_at, status, reading_time, featured, keywords, content, meta_title, meta_description, meta_keywords, canonical_url, og_title, og_description, focus_keyword, robots, breadcrumb_title, image_alt, image_title, schema_type, faq_json, whatsapp_label, whatsapp_phone, whatsapp_text, source) VALUES (:title, :slug, :category, :excerpt, :image, :author, :published_at, :status, :reading_time, :featured, :keywords, :content, :meta_title, :meta_description, :meta_keywords, :canonical_url, :og_title, :og_description, :focus_keyword, :robots, :breadcrumb_title, :image_alt, :image_title, :schema_type, :faq_json, :whatsapp_label, :whatsapp_phone, :whatsapp_text, :source)');
         $stmt->execute(article_db_payload($article));
         $insertId = (int) db()->lastInsertId();
         if ($insertId > 0 && function_exists('activity_log_record')) {
@@ -1218,7 +1227,7 @@ function article_update(int $id, array $article): bool
     if (function_exists('storage_mysql_enabled') && storage_mysql_enabled('articles')) {
         $payload = article_db_payload($article);
         $payload['id'] = $id;
-        $stmt = db()->prepare('UPDATE articles SET title=:title, slug=:slug, category=:category, excerpt=:excerpt, image=:image, author=:author, published_at=:published_at, reading_time=:reading_time, featured=:featured, keywords=:keywords, content=:content, meta_title=:meta_title, meta_description=:meta_description, meta_keywords=:meta_keywords, canonical_url=:canonical_url, og_title=:og_title, og_description=:og_description, focus_keyword=:focus_keyword, robots=:robots, breadcrumb_title=:breadcrumb_title, image_alt=:image_alt, image_title=:image_title, schema_type=:schema_type, faq_json=:faq_json, whatsapp_label=:whatsapp_label, whatsapp_phone=:whatsapp_phone, whatsapp_text=:whatsapp_text, source=:source WHERE id=:id');
+        $stmt = db()->prepare('UPDATE articles SET title=:title, slug=:slug, category=:category, excerpt=:excerpt, image=:image, author=:author, published_at=:published_at, status=:status, reading_time=:reading_time, featured=:featured, keywords=:keywords, content=:content, meta_title=:meta_title, meta_description=:meta_description, meta_keywords=:meta_keywords, canonical_url=:canonical_url, og_title=:og_title, og_description=:og_description, focus_keyword=:focus_keyword, robots=:robots, breadcrumb_title=:breadcrumb_title, image_alt=:image_alt, image_title=:image_title, schema_type=:schema_type, faq_json=:faq_json, whatsapp_label=:whatsapp_label, whatsapp_phone=:whatsapp_phone, whatsapp_text=:whatsapp_text, source=:source WHERE id=:id');
         $ok = $stmt->execute($payload);
         if ($ok && function_exists('activity_log_record')) {
             activity_log_record('update', 'article', $id, 'Artikel diperbarui.', ['title' => $article['title'] ?? '', 'slug' => $article['slug'] ?? '', 'storage' => 'database']);
@@ -1543,6 +1552,7 @@ function article_db_payload(array $article): array
         'image' => $article['image'] ?: null,
         'author' => $article['author'],
         'published_at' => $article['published_at'],
+        'status' => $article['status'] ?? 'published',
         'reading_time' => $article['reading_time'],
         'featured' => $article['featured'] ? 1 : 0,
         'keywords' => implode(', ', $article['keywords'] ?? []),
