@@ -583,7 +583,7 @@ if (!function_exists('order_validate_payload')) {
         if ($shippingMethodRequired && $shippingMethod === '') {
             $errors[] = 'Metode pengiriman wajib dipilih.';
         }
-        if ($shippingMethod !== '' && function_exists('checkout_settings')) {
+        if ($shippingRequired && $shippingMethod !== '' && function_exists('checkout_settings')) {
             $shippingOptions = (array)($checkoutSettings['shipping_method_options'] ?? []);
             if ($shippingOptions && !in_array($shippingMethod, $shippingOptions, true)) {
                 $errors[] = 'Pilihan metode pengiriman belum valid.';
@@ -676,6 +676,9 @@ if (!function_exists('order_normalize_payload')) {
         $policyProduct = null;
         if (!empty($order['product_slug']) && function_exists('get_product_by_slug')) {
             $policyProduct = get_product_by_slug((string)$order['product_slug']);
+        }
+        if (is_array($policyProduct) && function_exists('checkout_shipping_needed_for_product')) {
+            $order['shipping_required'] = checkout_shipping_needed_for_product($policyProduct) ? 'yes' : 'no';
         }
 
         if (function_exists('shipping_apply_to_order')) {
