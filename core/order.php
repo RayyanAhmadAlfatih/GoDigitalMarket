@@ -493,8 +493,22 @@ if (!function_exists('order_validate_payload')) {
         $paymentMethod = order_clean((string)($payload['payment_method'] ?? ''), 60);
         $email = order_clean((string)($payload['email'] ?? ''), 120);
         $consent = (string)($payload['consent_contact'] ?? '') !== '';
-        $checkoutSettings = function_exists('checkout_settings') ? checkout_settings() : [];
-        $shippingRequired = (string)($payload['shipping_required'] ?? '1') === '1';
+        $policyProduct = null;
+        if (!empty($payload['product_slug']) && function_exists('get_product_by_slug')) {
+            $policyProduct = get_product_by_slug((string)$payload['product_slug']);
+        }
+        $checkoutSettings = function_exists('checkout_settings_for_product')
+            ? checkout_settings_for_product(is_array($policyProduct) ? $policyProduct : null)
+            : (function_exists('checkout_settings') ? checkout_settings() : []);
+        $shippingRequired = is_array($policyProduct) && function_exists('checkout_shipping_needed_for_product')
+            ? checkout_shipping_needed_for_product($policyProduct)
+            : ((string)($payload['shipping_required'] ?? '1') === '1');
+        $emailRequired = !empty($checkoutSettings['email_enabled']) && !empty($checkoutSettings['email_required']);
+        $plannedDateRequired = !empty($checkoutSettings['planned_date_enabled']) && !empty($checkoutSettings['planned_date_required']);
+        $needRequired = !empty($checkoutSettings['need_enabled']) && !empty($checkoutSettings['need_required']);
+        $locationRequired = !empty($checkoutSettings['location_enabled']) && !empty($checkoutSettings['location_required']);
+        $paymentMethodRequired = !empty($checkoutSettings['payment_method_enabled']) && !empty($checkoutSettings['payment_method_required']);
+        $notesRequired = !empty($checkoutSettings['notes_enabled']) && !empty($checkoutSettings['notes_required']);
         $addressRequired = $shippingRequired && !empty($checkoutSettings['address_enabled']) && !empty($checkoutSettings['address_required']);
         $shippingMethodRequired = $shippingRequired && !empty($checkoutSettings['shipping_method_enabled']) && !empty($checkoutSettings['shipping_method_required']);
         $addressLine = order_clean((string)($payload['address_line'] ?? ''), 240);
@@ -520,19 +534,30 @@ if (!function_exists('order_validate_payload')) {
         if ($quantity < 1 || $quantity > 999) {
             $errors[] = 'Jumlah pesanan belum valid.';
         }
+        if ($plannedDateRequired && $plannedDate === '') {
+            $errors[] = 'Rencana tanggal wajib diisi.';
+        }
         if ($plannedDate !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $plannedDate)) {
             $errors[] = 'Tanggal rencana belum valid.';
+        }
+        if ($needRequired && $need === '') {
+            $errors[] = 'Jenis kebutuhan wajib dipilih.';
+        }
+        if ($locationRequired && order_clean((string)($payload['location'] ?? ''), 100) === '') {
+            $errors[] = 'Lokasi / kota wajib dipilih.';
+        }
+        if ($paymentMethodRequired && ($paymentMethod === '' || $paymentMethod === 'Belum Memilih')) {
+            $errors[] = 'Metode pembayaran wajib dipilih.';
         }
         if ($paymentMethod !== '' && !in_array($paymentMethod, order_payment_methods(), true)) {
             $errors[] = 'Pilihan metode pembayaran belum valid.';
         }
-        if ($paymentMethod !== '' && !empty($payload['product_slug']) && function_exists('get_product_by_slug') && function_exists('commerce_payment_is_allowed')) {
-            $policyProduct = get_product_by_slug((string)$payload['product_slug']);
-            if ($policyProduct && !commerce_payment_is_allowed($policyProduct, $paymentMethod)) {
+        if ($paymentMethod !== '' && is_array($policyProduct) && function_exists('commerce_payment_is_allowed')) {
+            if (!commerce_payment_is_allowed($policyProduct, $paymentMethod)) {
                 $errors[] = 'Metode pembayaran ini tidak aktif untuk produk tersebut.';
             }
         }
-        if (!empty($checkoutSettings['email_required']) && $email === '') {
+        if ($emailRequired && $email === '') {
             $errors[] = 'Email wajib diisi.';
         }
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -569,6 +594,9 @@ if (!function_exists('order_validate_payload')) {
         }
         if (!$consent) {
             $errors[] = 'Centang persetujuan untuk dihubungi admin.';
+        }
+        if ($notesRequired && $message === '') {
+            $errors[] = 'Catatan pesanan wajib diisi.';
         }
         if ($message !== '' && strlen($message) < 4) {
             $errors[] = 'Catatan terlalu pendek.';
@@ -629,6 +657,8 @@ if (!function_exists('order_normalize_payload')) {
             'source' => order_clean((string)($payload['source'] ?? 'product-order-form'), 80),
             'intent' => order_clean((string)($payload['intent'] ?? 'order-draft'), 80),
             'label' => order_clean((string)($payload['label'] ?? 'Order Draft'), 120),
+            'checkout_profile_source' => order_clean((string)($payload['checkout_profile_source'] ?? 'global'), 30),
+            'checkout_profile_preset' => order_clean((string)($payload['checkout_profile_preset'] ?? 'global'), 30),
             'landing_page_slug' => function_exists('slugify') ? slugify((string)($payload['landing_page_slug'] ?? '')) : order_clean((string)($payload['landing_page_slug'] ?? ''), 120),
             'landing_page_id' => order_clean((string)($payload['landing_page_id'] ?? ''), 90),
             'ab_test_type' => function_exists('landing_page_ab_clean_slug') ? landing_page_ab_clean_slug((string)($payload['ab_test_type'] ?? '')) : order_clean((string)($payload['ab_test_type'] ?? ''), 40),
