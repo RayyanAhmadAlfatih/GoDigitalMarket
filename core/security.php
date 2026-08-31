@@ -23,6 +23,10 @@ if (!defined('APP_START')) {
 
 if (session_status() === PHP_SESSION_NONE) {
 
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_trans_sid', '0');
+
     session_set_cookie_params([
         'lifetime' => 0,
         'path' => '/',
@@ -58,6 +62,10 @@ if (!headers_sent()) {
     header(
         "Content-Security-Policy: default-src 'self' https: data: blob:; img-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://wa.me https://api.whatsapp.com;"
     );
+
+    if (app_is_https() && (!function_exists('app_is_localhost') || !app_is_localhost())) {
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
 }
 
 /*
@@ -278,10 +286,11 @@ if (!function_exists('safe_redirect')) {
 if (!function_exists('public_endpoint_client_key')) {
     function public_endpoint_client_key(string $scope): string
     {
-        $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-        $ua = (string)($_SERVER['HTTP_USER_AGENT'] ?? 'unknown');
+        $ip = trim((string)($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
         $scope = preg_replace('/[^a-z0-9_\-]/i', '-', $scope) ?: 'public';
-        return hash('sha256', $ip . '|' . $ua . '|' . $scope . '|' . (string)($_ENV['APP_KEY'] ?? SITE_URL));
+        $appKey = trim((string)($_ENV['APP_KEY'] ?? ''));
+        $salt = $appKey !== '' ? $appKey : (string)SITE_URL;
+        return hash('sha256', $ip . '|' . $scope . '|' . $salt);
     }
 }
 
@@ -323,17 +332,46 @@ if (!function_exists('public_endpoint_touch_rate_limit')) {
         if (!is_dir(CACHE_PATH)) {
             @mkdir(CACHE_PATH, 0775, true);
         }
+
         $file = public_endpoint_rate_limit_file();
-        $data = is_file($file) ? json_decode((string)@file_get_contents($file), true) : [];
-        $data = is_array($data) ? $data : [];
-        $key = public_endpoint_client_key($scope);
-        $cutoff = time() - max(60, min(86400, $windowSeconds));
-        $data[$key] = array_values(array_filter((array)($data[$key] ?? []), static fn($ts): bool => (int)$ts > $cutoff));
-        $data[$key][] = time();
-        if (count($data) > 1200) {
-            $data = array_slice($data, -1200, null, true);
+        $handle = @fopen($file, 'c+');
+        if (!$handle) {
+            return;
         }
-        @file_put_contents($file, json_encode($data), LOCK_EX);
+
+        try {
+            if (!flock($handle, LOCK_EX)) {
+                return;
+            }
+
+            rewind($handle);
+            $raw = stream_get_contents($handle);
+            $data = json_decode((string)$raw, true);
+            $data = is_array($data) ? $data : [];
+
+            $key = public_endpoint_client_key($scope);
+            $cutoff = time() - max(60, min(86400, $windowSeconds));
+            $data[$key] = array_values(array_filter(
+                (array)($data[$key] ?? []),
+                static fn($ts): bool => (int)$ts > $cutoff
+            ));
+            $data[$key][] = time();
+
+            if (count($data) > 1200) {
+                $data = array_slice($data, -1200, null, true);
+            }
+
+            $encoded = json_encode($data);
+            if ($encoded !== false) {
+                rewind($handle);
+                ftruncate($handle, 0);
+                fwrite($handle, $encoded);
+                fflush($handle);
+            }
+        } finally {
+            @flock($handle, LOCK_UN);
+            @fclose($handle);
+        }
     }
 }
 
