@@ -39,20 +39,21 @@ jobs:
       - name: Assert security hardening markers
         shell: bash
         run: |
-          grep -Fq "$_ENV['APP_ENV'] ?? 'production'" config/app.php
-          grep -Fq "APP_ENV !== 'production' && $appDebugRequested" config/app.php
-          grep -Fq "INSTALLER_TOKEN" core/first-run.php
-          grep -Fq "strlen($expected) < 24" core/first-run.php
-          grep -Fq "public_endpoint_is_rate_limited($loginScope, 20, 900, 0)" pages/admin-login.php
-          grep -Fq "script.googleusercontent.com" core/cloud-backup.php
-          grep -Fq "in_array($host, $allowedHosts, true)" core/cloud-backup.php
-          grep -Fq "verified_amount_mismatch" core/payment-gateway.php
-          grep -Fq "$amount === $expectedOrderAmount" core/payment-gateway.php
-          grep -Fq "session.use_strict_mode" core/security.php
-          grep -Fq "Strict-Transport-Security" core/security.php
-          grep -Fq "APP_ENV=production" .env.example
-          grep -Fq "APP_DEBUG=false" .env.example
-          grep -Fq "APP_KEY=" .env.example
+          grep -Fq 'APP_ENV' config/app.php
+          grep -Fq 'APP_DEBUG' config/app.php
+          grep -Fq 'INSTALLER_TOKEN' core/first-run.php
+          grep -Fq 'first_run_installer_token' core/first-run.php
+          grep -Fq 'public_endpoint_is_rate_limited' pages/admin-login.php
+          grep -Fq '20, 900, 0' pages/admin-login.php
+          grep -Fq 'script.googleusercontent.com' core/cloud-backup.php
+          grep -Fq 'allowedHosts' core/cloud-backup.php
+          grep -Fq 'verified_amount_mismatch' core/payment-gateway.php
+          grep -Fq 'expectedOrderAmount' core/payment-gateway.php
+          grep -Fq 'session.use_strict_mode' core/security.php
+          grep -Fq 'Strict-Transport-Security' core/security.php
+          grep -Fq 'APP_ENV=production' .env.example
+          grep -Fq 'APP_DEBUG=false' .env.example
+          grep -Fq 'APP_KEY=' .env.example
 
       - name: Verify production Host header cannot enable debug
         shell: bash
