@@ -17,6 +17,36 @@ function admin_media_library_logged_in(): bool
     return (bool)($_SESSION['admin_articles_logged_in'] ?? false);
 }
 
+function admin_media_library_upload(): string
+{
+    if (empty($_FILES['media_file']['tmp_name']) || !is_uploaded_file((string)$_FILES['media_file']['tmp_name'])) {
+        throw new RuntimeException('Pilih file gambar yang ingin diupload.');
+    }
+
+    $originalName = pathinfo((string)($_FILES['media_file']['name'] ?? 'media'), PATHINFO_FILENAME);
+    $customName = trim((string)($_POST['media_name'] ?? ''));
+    $baseName = $customName !== '' ? $customName : ($originalName !== '' ? $originalName : 'media');
+
+    $url = image_upload_to_webp(
+        $_FILES['media_file'],
+        'media',
+        $baseName,
+        [
+            'prefix' => 'media',
+            'max_size' => 10 * 1024 * 1024,
+            'max_width' => 2200,
+            'max_height' => 2200,
+            'quality' => 82,
+        ]
+    );
+
+    if (!$url) {
+        throw new RuntimeException('Upload media gagal diproses.');
+    }
+
+    return $url;
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     require_csrf();
     if (!admin_media_library_logged_in()) {
@@ -35,6 +65,16 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             ? 'Alt suggestion diterapkan: ' . (int)$result['total'] . ' field diperbarui.'
             : 'Belum ada alt kosong yang bisa diperbarui otomatis.';
         redirect_302('admin/media-library?message=' . rawurlencode($messageText));
+    } elseif ((string)($_POST['media_action'] ?? '') === 'upload') {
+        try {
+            $uploadedUrl = admin_media_library_upload();
+            if (function_exists('activity_log_record')) {
+                activity_log_record('upload', 'media', null, 'Media diupload dari Media Library.', ['url' => $uploadedUrl]);
+            }
+            redirect_302('admin/media-library?message=' . rawurlencode('Media berhasil diupload dan dioptimasi ke WebP.'));
+        } catch (Throwable $e) {
+            $error = $e->getMessage();
+        }
     }
 }
 
@@ -174,6 +214,29 @@ require_once ROOT_PATH . '/components/layout/header.php';
         <div class="container">
             <?php if ($message): ?><div class="admin-alert admin-alert--success"><?= esc($message); ?></div><?php endif; ?>
             <?php if ($error): ?><div class="admin-alert admin-alert--error"><?= esc($error); ?></div><?php endif; ?>
+
+            <?php if ($loggedIn): ?>
+                <div class="admin-card admin-media-upload-card">
+                    <div class="admin-form-head admin-form-head--split">
+                        <div>
+                            <span class="admin-badge">Upload Media</span>
+                            <h2>Tambah Gambar ke Media Library</h2>
+                            <p>Upload JPG, PNG, atau WebP. File otomatis dioptimasi dan disimpan sebagai WebP di <code>assets/uploads/media</code>.</p>
+                        </div>
+                        <form method="post" enctype="multipart/form-data" class="admin-media-upload-form">
+                            <?= csrf_field(); ?>
+                            <input type="hidden" name="media_action" value="upload">
+                            <label>Nama File SEO Opsional
+                                <input type="text" name="media_name" placeholder="contoh: banner-promo-agustus">
+                            </label>
+                            <label>Pilih Gambar
+                                <input type="file" name="media_file" accept="image/jpeg,image/png,image/webp" required>
+                            </label>
+                            <button class="admin-btn admin-btn--primary" type="submit">Upload Media</button>
+                        </form>
+                    </div>
+                </div>
+            <?php endif; ?>
 
             <?php if (!$loggedIn): ?>
                 <div class="admin-login-layout">
