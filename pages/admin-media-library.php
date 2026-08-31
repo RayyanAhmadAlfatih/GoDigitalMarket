@@ -19,9 +19,7 @@ function admin_media_library_logged_in(): bool
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     require_csrf();
-    if (admin_password_needs_setup($adminPassword)) {
-        $error = 'ADMIN_PASSWORD belum aman. Ganti nilai ADMIN_PASSWORD di file .env dengan password kuat sebelum login admin.';
-    } elseif (!admin_media_library_logged_in()) {
+    if (!admin_media_library_logged_in()) {
         if (hash_equals((string)$adminPassword, (string)($_POST['password'] ?? ''))) {
             $_SESSION['admin_articles_logged_in'] = true;
             if (function_exists('activity_log_record')) {
