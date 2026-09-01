@@ -182,9 +182,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $status = payment_proof_clean((string)($_POST['status'] ?? ''), 60);
         $note = payment_proof_multiline_clean((string)($_POST['admin_note'] ?? ''), 500);
         $orderPaymentStatus = order_normalize_payment_status((string)($_POST['order_payment_status'] ?? ''));
+        $syncOrderPayment = !empty($_POST['sync_order_payment']);
+        if ($syncOrderPayment && $status === 'Lunas') {
+            $orderPaymentStatus = 'Lunas';
+        } elseif ($syncOrderPayment && $status === 'DP Masuk') {
+            $orderPaymentStatus = 'DP Masuk';
+        }
         $proof = payment_proof_find_by_id($proofId);
         $ok = $proof ? payment_proof_update_status($proofId, $status, $note) : false;
-        if ($ok && $proof && !empty($_POST['sync_order_payment']) && !empty($proof['order_id'])) {
+        if ($ok && $proof && $syncOrderPayment && !empty($proof['order_id'])) {
             $order = order_find_by_id((string)$proof['order_id']);
             if ($order) {
                 order_update_status(
@@ -374,7 +380,14 @@ require_once ROOT_PATH . '/components/layout/header.php';
                     <h2>Bukti Pembayaran Terbaru</h2>
                     <div class="admin-proof-list">
                         <?php foreach ($proofs as $proof): ?>
-                            <?php $fileUrl = payment_proof_file_url($proof); $waPhone = order_phone_for_whatsapp((string)($proof['payer_phone'] ?? '')); ?>
+                            <?php
+                                $fileUrl = payment_proof_file_url($proof);
+                                $waPhone = order_phone_for_whatsapp((string)($proof['payer_phone'] ?? ''));
+                                $linkedOrder = !empty($proof['order_id']) && function_exists('order_find_by_id') ? order_find_by_id((string)$proof['order_id']) : null;
+                                $linkedPaymentStatus = is_array($linkedOrder)
+                                    ? order_normalize_payment_status((string)($linkedOrder['payment_status'] ?? 'Belum Ditagih'))
+                                    : 'Belum Ditagih';
+                            ?>
                             <article class="admin-proof-item">
                                 <div class="admin-proof-item__head">
                                     <div>
@@ -405,8 +418,8 @@ require_once ROOT_PATH . '/components/layout/header.php';
                                     <input type="hidden" name="form_action" value="update_payment_proof">
                                     <input type="hidden" name="id" value="<?= esc((string)($proof['id'] ?? '')); ?>">
                                     <label>Status Review<select name="status"><?php foreach (payment_proof_allowed_statuses() as $status): ?><option value="<?= esc($status); ?>" <?= ((string)($proof['status'] ?? 'Menunggu Review'))===$status?'selected':''; ?>><?= esc($status); ?></option><?php endforeach; ?></select></label>
-                                    <label>Status Pembayaran Order<select name="order_payment_status"><?php foreach (order_allowed_payment_statuses() as $status): ?><option value="<?= esc($status); ?>" <?= in_array($status, ['DP Masuk','Lunas'], true) ? '' : ''; ?>><?= esc($status); ?></option><?php endforeach; ?></select></label>
-                                    <label><input type="checkbox" name="sync_order_payment" value="1"> Sinkron ke order</label>
+                                    <label>Status Pembayaran Order<select name="order_payment_status"><?php foreach (order_allowed_payment_statuses() as $orderPayStatus): ?><option value="<?= esc($orderPayStatus); ?>" <?= $linkedPaymentStatus === $orderPayStatus ? 'selected' : ''; ?>><?= esc($orderPayStatus); ?></option><?php endforeach; ?></select></label>
+                                    <label><input type="checkbox" name="sync_order_payment" value="1"> Sinkron ke order<small style="display:block;margin-top:.35rem;color:#64748b">Jika review dipilih Lunas atau DP Masuk, status pembayaran Order otomatis disamakan saat sinkron aktif.</small></label>
                                     <textarea name="admin_note" placeholder="Catatan review bukti pembayaran"><?= esc((string)($proof['admin_note'] ?? '')); ?></textarea>
                                     <button class="admin-btn admin-btn--primary" type="submit">Update Review</button>
                                 </form>
